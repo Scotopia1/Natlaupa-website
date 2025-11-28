@@ -18,7 +18,7 @@ const TrendingSection: React.FC = () => {
               <Flame className="relative text-red-500" size={24} />
             </div>
           </div>
-          <Link href="/offers" className="hidden md:flex items-center text-gold text-sm uppercase tracking-widest hover:text-white transition-colors">
+          <Link href="/#experience-selector" className="hidden md:flex items-center text-gold text-sm uppercase tracking-widest hover:text-white transition-colors">
             View All <ArrowRight size={16} className="ml-2" />
           </Link>
         </div>

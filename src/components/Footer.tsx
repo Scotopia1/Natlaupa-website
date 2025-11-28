@@ -22,8 +22,7 @@ const Footer: React.FC = () => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
-    { name: 'Destinations', path: '/destinations' },
-    { name: 'Offers', path: '/offers' },
+    { name: 'Explore', path: '/#experience-selector' },
     { name: 'Contact', path: '/contact' },
   ];
 

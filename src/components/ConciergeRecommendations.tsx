@@ -254,7 +254,7 @@ const ConciergeRecommendations: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.15 }}
                     >
-                      <Link href={`/destination/${dest.id}`} className="group block">
+                      <Link href="/" className="group block">
                         <div className="flex gap-4 p-4 bg-white/5 border border-white/10 rounded-sm hover:border-gold/30 transition-all">
                           <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-sm">
                             <img
@@ -308,7 +308,7 @@ const ConciergeRecommendations: React.FC = () => {
 
                 {/* View All CTA */}
                 <Link
-                  href="/offers"
+                  href="/#experience-selector"
                   className="flex items-center justify-center gap-2 w-full py-4 border border-gold text-gold hover:bg-gold hover:text-deepBlue transition-all duration-300 rounded-sm font-bold uppercase tracking-widest text-sm"
                 >
                   <span>View All Recommendations</span>
