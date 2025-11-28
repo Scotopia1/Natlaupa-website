@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Map, Building2, ThermometerSun, ArrowRight, Clock, MapPin, Plus, Globe, Sparkles, Moon } from 'lucide-react';
+import { Map, Building2, ThermometerSun, ArrowRight, Clock, MapPin, Plus, Sparkles, Moon } from 'lucide-react';
 import Link from 'next/link';
 import { DESTINATIONS, CATEGORIES } from '@/lib/constants';
 
@@ -330,18 +330,6 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
             animate={{ opacity: 1 }}
             className="relative"
           >
-            {/* Floating Globe Navigator */}
-            <div className="fixed bottom-8 right-8 z-50 hidden md:block">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 1, type: "spring" }}
-                className="w-16 h-16 rounded-full bg-deepBlue/80 backdrop-blur-xl border border-gold/30 flex items-center justify-center cursor-pointer hover:border-gold transition-colors group"
-              >
-                <Globe className="text-gold group-hover:animate-spin" style={{ animationDuration: '3s' }} size={24} />
-              </motion.div>
-            </div>
-
             {/* Section Header */}
             <div className="relative z-10 pt-32 pb-16 px-4 sm:px-6 lg:px-8">
               <div className="max-w-7xl mx-auto">
