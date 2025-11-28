@@ -1,8 +1,10 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Star, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { TRENDING_HOTELS } from '../constants';
+import Link from 'next/link';
+import { TRENDING_HOTELS } from '@/lib/constants';
 
 const TrendingSection: React.FC = () => {
   return (
@@ -16,14 +18,14 @@ const TrendingSection: React.FC = () => {
               <Flame className="relative text-red-500" size={24} />
             </div>
           </div>
-          <Link to="/offers" className="hidden md:flex items-center text-gold text-sm uppercase tracking-widest hover:text-white transition-colors">
+          <Link href="/offers" className="hidden md:flex items-center text-gold text-sm uppercase tracking-widest hover:text-white transition-colors">
             View All <ArrowRight size={16} className="ml-2" />
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {TRENDING_HOTELS.map((hotel) => (
-            <Link key={hotel.id} to={`/offer/${hotel.id}`} className="block">
+            <Link key={hotel.id} href={`/offer/${hotel.id}`} className="block">
               <motion.div
                 whileHover={{ y: -10 }}
                 className="bg-midnight rounded-sm overflow-hidden group border border-white/5 hover:shadow-2xl hover:shadow-gold/10 transition-all duration-300 h-full flex flex-col"

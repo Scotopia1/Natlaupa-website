@@ -1,4 +1,4 @@
-import { Hotel, Destination, Category } from './types';
+import { Hotel, Destination, Category } from '@/types';
 
 export const NAV_LINKS = [
   { name: 'Home', path: '/' },

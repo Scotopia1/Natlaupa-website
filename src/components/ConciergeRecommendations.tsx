@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Sun, Snowflake, Leaf, Flower2, TrendingUp, Clock, MapPin, Star, ArrowRight, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { TRENDING_HOTELS, DESTINATIONS } from '../constants';
+import Link from 'next/link';
+import { TRENDING_HOTELS, DESTINATIONS } from '@/lib/constants';
 
 type RecommendationType = 'seasonal' | 'trending' | 'for-you';
 
@@ -196,7 +198,7 @@ const ConciergeRecommendations: React.FC = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Link to={`/offer/${hotel.id}`} className="group block">
+                      <Link href={`/offer/${hotel.id}`} className="group block">
                         <div className="relative h-72 overflow-hidden rounded-sm mb-4 border border-white/10 group-hover:border-gold/30 transition-colors">
                           <img
                             src={hotel.imageUrl}
@@ -252,7 +254,7 @@ const ConciergeRecommendations: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.15 }}
                     >
-                      <Link to={`/destination/${dest.id}`} className="group block">
+                      <Link href={`/destination/${dest.id}`} className="group block">
                         <div className="flex gap-4 p-4 bg-white/5 border border-white/10 rounded-sm hover:border-gold/30 transition-all">
                           <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-sm">
                             <img
@@ -306,7 +308,7 @@ const ConciergeRecommendations: React.FC = () => {
 
                 {/* View All CTA */}
                 <Link
-                  to="/offers"
+                  href="/offers"
                   className="flex items-center justify-center gap-2 w-full py-4 border border-gold text-gold hover:bg-gold hover:text-deepBlue transition-all duration-300 rounded-sm font-bold uppercase tracking-widest text-sm"
                 >
                   <span>View All Recommendations</span>

@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Instagram, Twitter, Facebook, Send, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -50,7 +52,7 @@ const Footer: React.FC = () => {
                 Join the world's most discerning travelers in discovering accommodations that transcend the ordinary.
               </p>
               <Link
-                to="/offers"
+                href="/offers"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 className="inline-flex items-center gap-3 bg-gold text-deepBlue px-10 py-5 font-bold uppercase tracking-[0.2em] text-sm hover:bg-white transition-all duration-500 group"
@@ -118,7 +120,7 @@ const Footer: React.FC = () => {
                 ].map((link) => (
                   <li key={link.name}>
                     <Link
-                      to={link.path}
+                      href={link.path}
                       className="text-slate-400 text-sm hover:text-gold transition-colors duration-300 flex items-center group"
                     >
                       <span className="w-0 group-hover:w-4 h-px bg-gold mr-0 group-hover:mr-2 transition-all duration-300" />
@@ -146,7 +148,7 @@ const Footer: React.FC = () => {
                 ].map((link) => (
                   <li key={link.name}>
                     <Link
-                      to={link.path}
+                      href={link.path}
                       className="text-slate-400 text-sm hover:text-gold transition-colors duration-300 flex items-center group"
                     >
                       <span className="w-0 group-hover:w-4 h-px bg-gold mr-0 group-hover:mr-2 transition-all duration-300" />
@@ -160,7 +162,7 @@ const Footer: React.FC = () => {
                 <ul className="space-y-2">
                   {['Privacy Policy', 'Terms of Service', 'Cookies'].map((item) => (
                     <li key={item}>
-                      <Link to="#" className="text-slate-500 text-xs hover:text-gold transition-colors">
+                      <Link href="#" className="text-slate-500 text-xs hover:text-gold transition-colors">
                         {item}
                       </Link>
                     </li>

@@ -1,13 +1,16 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { NAV_LINKS } from '../constants';
+import { NAV_LINKS } from '@/lib/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
 
   // Handle scroll effect for background
   useEffect(() => {
@@ -29,7 +32,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center relative">
           
           {/* Left: Logo */}
-          <Link to="/" className="z-50">
+          <Link href="/" className="z-50">
             <span className="font-serif text-3xl text-white tracking-tight hover:text-gold transition-colors duration-300">
               Natlaupa
             </span>
@@ -40,9 +43,9 @@ const Navbar: React.FC = () => {
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.name}
-                to={link.path}
+                href={link.path}
                 className={`text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-300 ${
-                  location.pathname === link.path ? 'text-gold' : 'text-white/70 hover:text-white'
+                  pathname === link.path ? 'text-gold' : 'text-white/70 hover:text-white'
                 }`}
               >
                 {link.name}
@@ -53,15 +56,15 @@ const Navbar: React.FC = () => {
           {/* Right: Special Links (Desktop) */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
-              to="/for-hotels"
+              href="/for-hotels"
               className={`text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-300 ${
-                location.pathname === '/for-hotels' ? 'text-gold' : 'text-white/70 hover:text-white'
+                pathname === '/for-hotels' ? 'text-gold' : 'text-white/70 hover:text-white'
               }`}
             >
               For Hotels
             </Link>
             <Link
-              to="/become-angel"
+              href="/become-angel"
               className="text-xs font-bold uppercase tracking-[0.15em] px-4 py-2 border border-gold text-gold hover:bg-gold hover:text-deepBlue transition-all duration-300"
             >
               Become an Angel
@@ -94,7 +97,7 @@ const Navbar: React.FC = () => {
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.name}
-                  to={link.path}
+                  href={link.path}
                   onClick={() => setIsOpen(false)}
                   className="font-serif text-4xl text-white/90 hover:text-gold italic transition-colors"
                 >
@@ -107,14 +110,14 @@ const Navbar: React.FC = () => {
 
               {/* Special Links */}
               <Link
-                to="/for-hotels"
+                href="/for-hotels"
                 onClick={() => setIsOpen(false)}
                 className="font-serif text-2xl text-white/70 hover:text-gold transition-colors"
               >
                 For Hotels
               </Link>
               <Link
-                to="/become-angel"
+                href="/become-angel"
                 onClick={() => setIsOpen(false)}
                 className="font-serif text-2xl text-gold hover:text-white transition-colors"
               >

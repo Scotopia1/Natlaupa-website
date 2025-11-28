@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Compass, Palette, Leaf, Sparkles, ArrowRight, Check } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { TRENDING_HOTELS } from '../constants';
+import Link from 'next/link';
+import { TRENDING_HOTELS } from '@/lib/constants';
 
 interface Mood {
   id: string;
@@ -201,7 +203,7 @@ const MoodMatcher: React.FC = () => {
                     Each stay has been handpicked for its ability to deliver this unique experience.
                   </p>
                   <Link
-                    to={`/offers?mood=${selectedMood}`}
+                    href={`/offers?mood=${selectedMood}`}
                     className="inline-flex items-center gap-3 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors"
                   >
                     View Curated Selection
@@ -224,7 +226,7 @@ const MoodMatcher: React.FC = () => {
               {selectedMood ? 'Matching Properties' : 'Popular Picks'}
             </h3>
             <Link
-              to="/offers"
+              href="/offers"
               className="text-gold text-sm uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2"
             >
               View All <ArrowRight size={16} />
@@ -240,7 +242,7 @@ const MoodMatcher: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link to={`/offer/${hotel.id}`} className="group block">
+                <Link href={`/offer/${hotel.id}`} className="group block">
                   <div className="relative h-64 overflow-hidden rounded-sm mb-4">
                     <img
                       src={hotel.imageUrl}
