@@ -12,8 +12,11 @@ const nextConfig = {
       },
     ],
   },
-  // Suppress hydration warnings in development (caused by browser extensions)
   reactStrictMode: true,
+  // Fix turbopack root detection issue with multiple lockfiles
+  turbopack: {
+    root: process.cwd(),
+  },
 }
 
 module.exports = nextConfig
