@@ -263,14 +263,14 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
             >
               {/* Flickering arrow indicator */}
               <motion.div
-                className="absolute -top-16 left-1/2 -translate-x-1/2 flex flex-col items-center"
+                className="absolute -top-10 sm:-top-12 md:-top-14 lg:-top-16 left-1/2 -translate-x-1/2 flex flex-col items-center"
                 animate={{
-                  y: [0, 8, 0],
+                  y: [0, 6, 0],
                   opacity: [0.4, 1, 0.4]
                 }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
               >
-                <ChevronDown className="w-6 h-6 text-gold" />
+                <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
               </motion.div>
               {/* Pulse ring effect */}
               <AnimatePresence>
@@ -327,14 +327,14 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
             >
               {/* Flickering arrow indicator */}
               <motion.div
-                className="absolute -top-16 left-1/2 -translate-x-1/2 flex flex-col items-center"
+                className="absolute -top-10 sm:-top-12 md:-top-14 lg:-top-16 left-1/2 -translate-x-1/2 flex flex-col items-center"
                 animate={{
-                  y: [0, 8, 0],
+                  y: [0, 6, 0],
                   opacity: [0.4, 1, 0.4]
                 }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
               >
-                <ChevronDown className="w-6 h-6 text-gold" />
+                <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
               </motion.div>
               {/* Pulse ring effect */}
               <AnimatePresence>
