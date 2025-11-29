@@ -2,9 +2,6 @@ import { Hotel, Destination, Category } from '@/types';
 
 export const NAV_LINKS = [
   { name: 'Home', path: '/' },
-  { name: 'Offers', path: '/offers' },
-  { name: 'Countries', path: '/countries' },
-  { name: 'Styles', path: '/styles' },
   { name: 'About Us', path: '/about' },
   { name: 'Contact', path: '/contact' },
 ];
