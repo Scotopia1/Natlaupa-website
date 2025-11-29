@@ -6,6 +6,8 @@ import Hero from '@/components/Hero';
 import ExperienceSelector from '@/components/ExperienceSelector';
 import ValueProps from '@/components/ValueProps';
 import TrendingSection from '@/components/TrendingSection';
+import ConciergeRecommendations from '@/components/ConciergeRecommendations';
+import MoodMatcher from '@/components/MoodMatcher';
 import Footer from '@/components/Footer';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -32,6 +34,8 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, ease: 'easeOut' }}
         >
+          <MoodMatcher />
+          <ConciergeRecommendations />
           <ValueProps />
           <TrendingSection />
           <Footer />

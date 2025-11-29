@@ -203,7 +203,7 @@ const MoodMatcher: React.FC = () => {
                     Each stay has been handpicked for its ability to deliver this unique experience.
                   </p>
                   <Link
-                    href="/#experience-selector"
+                    href="/offers"
                     className="inline-flex items-center gap-3 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors"
                   >
                     View Curated Selection
@@ -226,7 +226,7 @@ const MoodMatcher: React.FC = () => {
               {selectedMood ? 'Matching Properties' : 'Popular Picks'}
             </h3>
             <Link
-              href="/#experience-selector"
+              href="/offers"
               className="text-gold text-sm uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2"
             >
               View All <ArrowRight size={16} />

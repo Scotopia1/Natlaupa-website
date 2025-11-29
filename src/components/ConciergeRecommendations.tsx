@@ -308,7 +308,7 @@ const ConciergeRecommendations: React.FC = () => {
 
                 {/* View All CTA */}
                 <Link
-                  href="/#experience-selector"
+                  href="/offers"
                   className="flex items-center justify-center gap-2 w-full py-4 border border-gold text-gold hover:bg-gold hover:text-deepBlue transition-all duration-300 rounded-sm font-bold uppercase tracking-widest text-sm"
                 >
                   <span>View All Recommendations</span>
