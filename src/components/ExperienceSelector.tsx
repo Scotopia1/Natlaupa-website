@@ -232,6 +232,21 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
           </motion.div>
 
+          {/* Hint Text - Top Section */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="absolute top-24 md:top-32 left-1/2 -translate-x-1/2 text-center z-10"
+          >
+            <p className="text-gold/80 text-sm md:text-base uppercase tracking-[0.4em] mb-2">
+              Pick Your Experience
+            </p>
+            <p className="text-white/40 text-xs md:text-sm tracking-wide">
+              Choose how you'd like to explore our collection
+            </p>
+          </motion.div>
+
           {/* Content Layer */}
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-12 md:gap-40 lg:gap-60">
 
