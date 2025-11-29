@@ -13,6 +13,8 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  // Prisma needs to be external for serverless functions
+  serverExternalPackages: ['@prisma/client', 'prisma'],
   // Fix turbopack root detection issue with multiple lockfiles
   turbopack: {
     root: process.cwd(),

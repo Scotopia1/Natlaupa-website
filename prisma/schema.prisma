@@ -1,0 +1,142 @@
+// Natlaupa Database Schema
+// Neon PostgreSQL with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// HOTEL & TRAVEL DATA MODELS
+// ============================================
+
+model Hotel {
+  id            String   @id @default(cuid())
+  name          String
+  location      String
+  country       String
+  category      String
+  rating        Float
+  imageUrl      String
+  isTrending    Boolean  @default(false)
+  description   String?
+  ctaPhrase     String?
+  lat           Float?
+  lng           Float?
+  amenities     String[]
+  galleryImages String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  reviews       Review[]
+
+  @@index([country])
+  @@index([category])
+  @@index([isTrending])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  user      String
+  rating    Int
+  comment   String
+  date      String
+  hotelId   String
+  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([hotelId])
+}
+
+model Destination {
+  id          String  @id @default(cuid())
+  name        String
+  country     String
+  imageUrl    String
+  temp        Int
+  lat         Float?
+  lng         Float?
+  description String
+}
+
+model Category {
+  id       String @id @default(cuid())
+  name     String @unique
+  imageUrl String
+  count    Int
+}
+
+// ============================================
+// CONTACT FORM SUBMISSIONS
+// ============================================
+
+// General contact form submissions
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    String   @default("new") // new, read, replied, archived
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Hotel/Concierge inquiry submissions (from offer pages)
+model HotelInquiry {
+  id        String   @id @default(cuid())
+  hotelId   String
+  hotelName String
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    String   @default("new") // new, contacted, booked, closed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([hotelId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Hotel partnership applications (from /for-hotels)
+model PartnershipApplication {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  companyName String
+  message     String
+  status      String   @default("pending") // pending, reviewing, approved, rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Angel program applications (from /become-angel)
+model AngelApplication {
+  id                  String   @id @default(cuid())
+  firstName           String
+  lastName            String
+  email               String
+  phone               String
+  currentPosition     String
+  yearsInHospitality  String
+  motivation          String
+  status              String   @default("pending") // pending, reviewing, approved, rejected
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

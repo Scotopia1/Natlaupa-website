@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Instagram, Twitter, Facebook, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { FOOTER_LINKS } from '@/lib/constants';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,19 +13,11 @@ const Footer: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Handle newsletter signup
     setTimeout(() => {
       setEmail('');
       setIsSubmitting(false);
     }, 1000);
   };
-
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Explore', path: '/#experience-selector' },
-    { name: 'Contact', path: '/contact' },
-  ];
 
   return (
     <footer className="bg-black">
@@ -75,29 +68,75 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Middle Section - Navigation */}
+      {/* Links Section */}
       <div className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-12">
-          <motion.nav
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="flex flex-wrap justify-center items-center gap-x-3 gap-y-4"
-          >
-            {navLinks.map((link, index) => (
-              <React.Fragment key={link.name}>
-                <Link
-                  href={link.path}
-                  className="text-slate-400 text-sm tracking-wide hover:text-gold transition-colors duration-300"
-                >
-                  {link.name}
-                </Link>
-                {index < navLinks.length - 1 && (
-                  <span className="text-slate-700">·</span>
-                )}
-              </React.Fragment>
-            ))}
-          </motion.nav>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Explore */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center md:text-left"
+            >
+              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">Explore</h4>
+              <nav className="flex flex-col gap-2">
+                {FOOTER_LINKS.explore.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.path}
+                    className="text-slate-400 text-sm hover:text-gold transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
+            </motion.div>
+
+            {/* Company */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-center md:text-left"
+            >
+              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">Company</h4>
+              <nav className="flex flex-col gap-2">
+                {FOOTER_LINKS.company.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.path}
+                    className="text-slate-400 text-sm hover:text-gold transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
+            </motion.div>
+
+            {/* Programs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-center md:text-left"
+            >
+              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">Programs</h4>
+              <nav className="flex flex-col gap-2">
+                {FOOTER_LINKS.programs.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.path}
+                    className="text-slate-400 text-sm hover:text-gold transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
+            </motion.div>
+          </div>
         </div>
       </div>
 

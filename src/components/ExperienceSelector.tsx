@@ -400,7 +400,7 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
                         transition={{ delay: index * 0.1 }}
                         className={`relative ${index % 2 === 0 ? 'md:pr-[20%]' : 'md:pl-[20%]'}`}
                       >
-                        <Link href="/" className="block group">
+                        <Link href={`/countries/${dest.country.toLowerCase().replace(/\s+/g, '-')}`} className="block group">
                           <div className="relative overflow-hidden rounded-sm border border-white/10 hover:border-gold/30 transition-all duration-500">
                             <div className="relative h-[50vh] md:h-[70vh] overflow-hidden">
                               <img src={dest.imageUrl} alt={dest.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
@@ -448,7 +448,7 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
                         transition={{ delay: index * 0.1 }}
                         className={`relative ${index % 2 === 0 ? 'md:pr-[20%]' : 'md:pl-[20%]'}`}
                       >
-                        <Link href="/" className="block group">
+                        <Link href={`/styles/${cat.name.toLowerCase().replace(/\s+/g, '-')}`} className="block group">
                           <div className="relative overflow-hidden rounded-sm border border-white/10 hover:border-gold/30 transition-all duration-500">
                             <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
                               <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
@@ -481,7 +481,7 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({ onSelection }) 
                     viewport={{ once: true }}
                     className="relative"
                   >
-                    <Link href="/" className="block group">
+                    <Link href={mode === 'destination' ? '/countries' : '/styles'} className="block group">
                       <div className="relative h-[40vh] overflow-hidden rounded-sm border border-dashed border-white/20 hover:border-gold/50 transition-all duration-500 bg-gradient-to-br from-midnight to-deepBlue flex items-center justify-center">
                         <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="text-center z-10">

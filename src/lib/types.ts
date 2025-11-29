@@ -10,7 +10,7 @@ export interface Hotel {
   id: string;
   name: string;
   location: string;
-  price: number;
+  country: string;
   rating: number;
   imageUrl: string;
   category: string;
@@ -19,6 +19,9 @@ export interface Hotel {
   ctaPhrase?: string;
   galleryImages?: string[];
   reviews?: Review[];
+  lat?: number;
+  lng?: number;
+  amenities?: string[];
 }
 
 export interface Destination {

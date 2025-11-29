@@ -2,9 +2,28 @@ import { Hotel, Destination, Category } from '@/types';
 
 export const NAV_LINKS = [
   { name: 'Home', path: '/' },
+  { name: 'Offers', path: '/offers' },
+  { name: 'Countries', path: '/countries' },
+  { name: 'Styles', path: '/styles' },
   { name: 'About Us', path: '/about' },
   { name: 'Contact', path: '/contact' },
 ];
+
+export const FOOTER_LINKS = {
+  explore: [
+    { name: 'All Offers', path: '/offers' },
+    { name: 'Countries', path: '/countries' },
+    { name: 'Styles', path: '/styles' },
+  ],
+  company: [
+    { name: 'About Us', path: '/about' },
+    { name: 'Contact', path: '/contact' },
+  ],
+  programs: [
+    { name: 'For Hotels', path: '/for-hotels' },
+    { name: 'Become an Angel', path: '/become-angel' },
+  ],
+};
 
 export const DESTINATIONS: Destination[] = [
   {
@@ -76,16 +95,19 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-export const TRENDING_HOTELS: Hotel[] = [
+export const ALL_HOTELS: Hotel[] = [
   {
     id: 'h1',
     name: 'The Azure Pearl',
     location: 'Maldives',
-    price: 1200,
+    country: 'Maldives',
     rating: 4.9,
     imageUrl: 'https://picsum.photos/600/400?random=20',
     category: 'Overwater Villas',
     isTrending: true,
+    lat: 3.2028,
+    lng: 73.2207,
+    amenities: ['Private Pool', 'Butler Service', 'Glass Floor', 'Spa', 'Water Sports'],
     description: "Suspended above the turquoise abyss, The Azure Pearl offers an isolation so profound it feels otherworldly. Glass floors, private infinity pools, and a dedicated butler ensure your reality is suspended the moment you arrive.",
     ctaPhrase: "Indulge in the Infinite",
     galleryImages: [
@@ -121,12 +143,15 @@ export const TRENDING_HOTELS: Hotel[] = [
   {
     id: 'h2',
     name: 'Highland Retreat',
-    location: 'Scotland',
-    price: 450,
+    location: 'Edinburgh, Scotland',
+    country: 'Scotland',
     rating: 4.8,
     imageUrl: 'https://picsum.photos/600/400?random=21',
     category: 'Historic Castles',
     isTrending: true,
+    lat: 55.9533,
+    lng: -3.1883,
+    amenities: ['Whisky Library', 'Fireplace', 'Private Gardens', 'Hunting Lodge', 'Spa'],
     description: "Walk the halls of history in a restored 15th-century fortress. Roaring fireplaces, bespoke whisky tastings, and misty moorland views create an atmosphere of aristocratic seclusion. A stay here is a legacy reclaimed.",
     ctaPhrase: "Claim Your Castle",
     galleryImages: [
@@ -155,12 +180,15 @@ export const TRENDING_HOTELS: Hotel[] = [
   {
     id: 'h3',
     name: 'Neon Sky Loft',
-    location: 'Tokyo',
-    price: 850,
+    location: 'Shinjuku, Tokyo',
+    country: 'Japan',
     rating: 4.7,
     imageUrl: 'https://picsum.photos/600/400?random=22',
     category: 'Urban Suites',
     isTrending: true,
+    lat: 35.6894,
+    lng: 139.6917,
+    amenities: ['Smart Home', 'Omakase Dining', 'City Views', 'Concierge', 'Gym'],
     description: "Hovering fifty stories above the electric pulse of Shinjuku, this loft is a sanctuary of minimalist design and maximum impact. Floor-to-ceiling smart glass and private omakase dining bring the city to you, on your terms.",
     ctaPhrase: "Own the Skyline",
     galleryImages: [
@@ -186,4 +214,351 @@ export const TRENDING_HOTELS: Hotel[] = [
       }
     ]
   },
+  {
+    id: 'h4',
+    name: 'Santorini Cliffside',
+    location: 'Oia, Santorini',
+    country: 'Greece',
+    rating: 4.9,
+    imageUrl: 'https://picsum.photos/600/400?random=23',
+    category: 'Overwater Villas',
+    isTrending: false,
+    lat: 36.4618,
+    lng: 25.3753,
+    amenities: ['Infinity Pool', 'Caldera Views', 'Wine Cellar', 'Private Terrace', 'Spa'],
+    description: "Perched on the volcanic cliffs of Oia, this whitewashed sanctuary offers panoramic views of the Aegean Sea and legendary sunsets. Each suite is a private world of Cycladic elegance, where time dissolves into the horizon.",
+    ctaPhrase: "Embrace the Aegean",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=113',
+        'https://picsum.photos/800/600?random=114',
+        'https://picsum.photos/800/600?random=115',
+        'https://picsum.photos/800/600?random=116'
+    ],
+    reviews: [
+      {
+        id: 'r8',
+        user: 'Christina M.',
+        rating: 5,
+        comment: 'The sunset from our private terrace was the most beautiful I have ever seen.',
+        date: 'Sep 2024'
+      },
+      {
+        id: 'r9',
+        user: 'Antonio B.',
+        rating: 5,
+        comment: 'Perfect honeymoon destination. The staff made everything magical.',
+        date: 'Aug 2024'
+      }
+    ]
+  },
+  {
+    id: 'h5',
+    name: 'The Zen Garden',
+    location: 'Kyoto, Japan',
+    country: 'Japan',
+    rating: 4.8,
+    imageUrl: 'https://picsum.photos/600/400?random=24',
+    category: 'Eco-Lodges',
+    isTrending: true,
+    lat: 35.0116,
+    lng: 135.7681,
+    amenities: ['Private Garden', 'Tea Ceremony', 'Onsen', 'Meditation Room', 'Kaiseki Dining'],
+    description: "A traditional ryokan reimagined for the discerning traveler. Tatami rooms open onto private moss gardens, while the scent of cedar and the sound of flowing water create an atmosphere of profound tranquility.",
+    ctaPhrase: "Find Your Center",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=117',
+        'https://picsum.photos/800/600?random=118',
+        'https://picsum.photos/800/600?random=119',
+        'https://picsum.photos/800/600?random=120'
+    ],
+    reviews: [
+      {
+        id: 'r10',
+        user: 'David L.',
+        rating: 5,
+        comment: 'The most peaceful place I have ever stayed. Changed my perspective on luxury.',
+        date: 'Oct 2024'
+      },
+      {
+        id: 'r11',
+        user: 'Yuki S.',
+        rating: 5,
+        comment: 'Authentic and refined. The kaiseki dinner was a spiritual experience.',
+        date: 'Sep 2024'
+      }
+    ]
+  },
+  {
+    id: 'h6',
+    name: 'Manhattan Penthouse',
+    location: 'Manhattan, New York',
+    country: 'USA',
+    rating: 4.8,
+    imageUrl: 'https://picsum.photos/600/400?random=25',
+    category: 'Urban Suites',
+    isTrending: false,
+    lat: 40.7580,
+    lng: -73.9855,
+    amenities: ['Rooftop Terrace', 'Private Chef', 'Art Collection', 'Car Service', '24/7 Concierge'],
+    description: "Commanding views of Central Park from a 60th-floor penthouse. This is New York at its most opulent: art-filled interiors, a private chef, and access to the city's most exclusive experiences.",
+    ctaPhrase: "Rule the City",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=121',
+        'https://picsum.photos/800/600?random=122',
+        'https://picsum.photos/800/600?random=123',
+        'https://picsum.photos/800/600?random=124'
+    ],
+    reviews: [
+      {
+        id: 'r12',
+        user: 'Michael R.',
+        rating: 5,
+        comment: 'The art collection alone is museum-worthy. Impeccable taste throughout.',
+        date: 'Nov 2024'
+      },
+      {
+        id: 'r13',
+        user: 'Lisa C.',
+        rating: 4,
+        comment: 'Everything was perfect except for the street noise at night.',
+        date: 'Oct 2024'
+      }
+    ]
+  },
+  {
+    id: 'h7',
+    name: 'Aurora Borealis Lodge',
+    location: 'Reykjavik, Iceland',
+    country: 'Iceland',
+    rating: 4.9,
+    imageUrl: 'https://picsum.photos/600/400?random=26',
+    category: 'Eco-Lodges',
+    isTrending: true,
+    lat: 64.1466,
+    lng: -21.9426,
+    amenities: ['Glass Roof', 'Geothermal Pool', 'Northern Lights Wake-up', 'Arctic Adventures', 'Spa'],
+    description: "Sleep beneath the dancing lights in a glass-roofed cabin. By day, explore glaciers and geysers; by night, sink into geothermal waters and watch the aurora paint the sky.",
+    ctaPhrase: "Chase the Lights",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=125',
+        'https://picsum.photos/800/600?random=126',
+        'https://picsum.photos/800/600?random=127',
+        'https://picsum.photos/800/600?random=128'
+    ],
+    reviews: [
+      {
+        id: 'r14',
+        user: 'Emma N.',
+        rating: 5,
+        comment: 'Waking up to the northern lights dancing above was surreal. Bucket list achieved.',
+        date: 'Jan 2024'
+      },
+      {
+        id: 'r15',
+        user: 'Thomas K.',
+        rating: 5,
+        comment: 'The geothermal pool under the stars is pure magic.',
+        date: 'Feb 2024'
+      }
+    ]
+  },
+  {
+    id: 'h8',
+    name: 'Château de la Loire',
+    location: 'Loire Valley, France',
+    country: 'France',
+    rating: 4.7,
+    imageUrl: 'https://picsum.photos/600/400?random=27',
+    category: 'Historic Castles',
+    isTrending: false,
+    lat: 47.4133,
+    lng: 0.9894,
+    amenities: ['Wine Tasting', 'Private Chapel', 'Formal Gardens', 'Michelin Dining', 'Horse Riding'],
+    description: "A Renaissance château transformed into an intimate retreat. Wander through formal gardens, dine by candlelight in centuries-old halls, and awaken to vineyard views that have inspired artists for generations.",
+    ctaPhrase: "Live Like Royalty",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=129',
+        'https://picsum.photos/800/600?random=130',
+        'https://picsum.photos/800/600?random=131',
+        'https://picsum.photos/800/600?random=132'
+    ],
+    reviews: [
+      {
+        id: 'r16',
+        user: 'Pierre D.',
+        rating: 5,
+        comment: 'The wine cellar dates back to the 1600s. Extraordinary experience.',
+        date: 'Jul 2024'
+      },
+      {
+        id: 'r17',
+        user: 'Margaret W.',
+        rating: 4,
+        comment: 'Beautiful but the rooms could use some modernization.',
+        date: 'Jun 2024'
+      }
+    ]
+  },
+  {
+    id: 'h9',
+    name: 'The Desert Mirage',
+    location: 'Dubai, UAE',
+    country: 'UAE',
+    rating: 4.8,
+    imageUrl: 'https://picsum.photos/600/400?random=28',
+    category: 'Urban Suites',
+    isTrending: false,
+    lat: 25.2048,
+    lng: 55.2708,
+    amenities: ['Private Beach', 'Desert Safari', 'Gold Butler', 'Helicopter Tours', 'Infinity Pool'],
+    description: "Where the desert meets the sea in the world's most ambitious city. A private beach, helicopter transfers, and a dedicated gold-class butler ensure every moment exceeds imagination.",
+    ctaPhrase: "Beyond Opulence",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=133',
+        'https://picsum.photos/800/600?random=134',
+        'https://picsum.photos/800/600?random=135',
+        'https://picsum.photos/800/600?random=136'
+    ],
+    reviews: [
+      {
+        id: 'r18',
+        user: 'Sheikh A.',
+        rating: 5,
+        comment: 'This is what true Arabian hospitality looks like. Unmatched.',
+        date: 'Dec 2024'
+      },
+      {
+        id: 'r19',
+        user: 'Victoria S.',
+        rating: 4,
+        comment: 'Incredible luxury but a bit overwhelming. Perfect for special occasions.',
+        date: 'Nov 2024'
+      }
+    ]
+  },
+  {
+    id: 'h10',
+    name: 'Costa Rica Treehouse',
+    location: 'Monteverde, Costa Rica',
+    country: 'Costa Rica',
+    rating: 4.9,
+    imageUrl: 'https://picsum.photos/600/400?random=29',
+    category: 'Eco-Lodges',
+    isTrending: false,
+    lat: 10.3157,
+    lng: -84.8248,
+    amenities: ['Canopy Walkway', 'Wildlife Tours', 'Organic Dining', 'Yoga Deck', 'Waterfall Access'],
+    description: "Nestled in the cloud forest canopy, this sustainable treehouse offers an immersive connection with nature. Wake to howler monkeys, dine on organic local cuisine, and fall asleep to the symphony of the jungle.",
+    ctaPhrase: "Return to Nature",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=137',
+        'https://picsum.photos/800/600?random=138',
+        'https://picsum.photos/800/600?random=139',
+        'https://picsum.photos/800/600?random=140'
+    ],
+    reviews: [
+      {
+        id: 'r20',
+        user: 'Carlos M.',
+        rating: 5,
+        comment: 'The most authentic eco-lodge experience. Sustainability done right.',
+        date: 'Oct 2024'
+      },
+      {
+        id: 'r21',
+        user: 'Jennifer L.',
+        rating: 5,
+        comment: 'Saw three toucans and a sloth from my balcony. Incredible.',
+        date: 'Sep 2024'
+      }
+    ]
+  },
+  {
+    id: 'h11',
+    name: 'Bora Bora Dream',
+    location: 'Bora Bora, French Polynesia',
+    country: 'French Polynesia',
+    rating: 4.9,
+    imageUrl: 'https://picsum.photos/600/400?random=30',
+    category: 'Overwater Villas',
+    isTrending: true,
+    lat: -16.5004,
+    lng: -151.7415,
+    amenities: ['Glass Bottom Floor', 'Private Lagoon', 'Polynesian Spa', 'Outrigger Canoe', 'Sunset Cruise'],
+    description: "The quintessential overwater experience in the world's most photographed lagoon. Mount Otemanu rises majestically as you glide between your villa and the coral gardens below.",
+    ctaPhrase: "Paradise Found",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=141',
+        'https://picsum.photos/800/600?random=142',
+        'https://picsum.photos/800/600?random=143',
+        'https://picsum.photos/800/600?random=144'
+    ],
+    reviews: [
+      {
+        id: 'r22',
+        user: 'Amanda & Chris',
+        rating: 5,
+        comment: 'Our 10th anniversary trip exceeded every expectation. Pure paradise.',
+        date: 'Jul 2024'
+      },
+      {
+        id: 'r23',
+        user: 'Robert F.',
+        rating: 5,
+        comment: 'The coral gardens beneath the villa are like a private aquarium.',
+        date: 'Aug 2024'
+      }
+    ]
+  },
+  {
+    id: 'h12',
+    name: 'Tuscan Villa Estate',
+    location: 'Tuscany, Italy',
+    country: 'Italy',
+    rating: 4.7,
+    imageUrl: 'https://picsum.photos/600/400?random=31',
+    category: 'Historic Castles',
+    isTrending: false,
+    lat: 43.7696,
+    lng: 11.2558,
+    amenities: ['Olive Grove', 'Cooking Classes', 'Wine Cellar', 'Pool', 'Art Studio'],
+    description: "A 16th-century villa surrounded by rolling hills, cypress trees, and olive groves. Learn the art of Tuscan cuisine, explore ancient cellars, and savor the slow pace of Italian countryside living.",
+    ctaPhrase: "Taste La Dolce Vita",
+    galleryImages: [
+        'https://picsum.photos/800/600?random=145',
+        'https://picsum.photos/800/600?random=146',
+        'https://picsum.photos/800/600?random=147',
+        'https://picsum.photos/800/600?random=148'
+    ],
+    reviews: [
+      {
+        id: 'r24',
+        user: 'Giovanni P.',
+        rating: 5,
+        comment: 'The cooking class with Nonna Maria was the highlight of our trip.',
+        date: 'Jun 2024'
+      },
+      {
+        id: 'r25',
+        user: 'Susan T.',
+        rating: 4,
+        comment: 'Beautiful property, though getting there requires some navigation skills.',
+        date: 'May 2024'
+      }
+    ]
+  }
 ];
+
+// Filter for trending hotels (backwards compatibility)
+export const TRENDING_HOTELS = ALL_HOTELS.filter(hotel => hotel.isTrending);
+
+// Get unique countries from all hotels
+export const COUNTRIES = [...new Set(ALL_HOTELS.map(hotel => hotel.country))].sort();
+
+// Get hotels by country
+export const getHotelsByCountry = (country: string) =>
+  ALL_HOTELS.filter(hotel => hotel.country.toLowerCase() === country.toLowerCase());
+
+// Get hotels by category/style
+export const getHotelsByCategory = (category: string) =>
+  ALL_HOTELS.filter(hotel => hotel.category.toLowerCase() === category.toLowerCase().replace(/-/g, ' '));

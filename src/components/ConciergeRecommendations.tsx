@@ -254,7 +254,7 @@ const ConciergeRecommendations: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.15 }}
                     >
-                      <Link href="/" className="group block">
+                      <Link href={`/countries/${dest.country.toLowerCase().replace(/\s+/g, '-')}`} className="group block">
                         <div className="flex gap-4 p-4 bg-white/5 border border-white/10 rounded-sm hover:border-gold/30 transition-all">
                           <div className="w-20 h-20 flex-shrink-0 overflow-hidden rounded-sm">
                             <img
