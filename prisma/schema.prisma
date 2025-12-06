@@ -33,6 +33,7 @@ model Hotel {
   updatedAt     DateTime @updatedAt
   reviews       Review[]
   moodTags      HotelMoodTag[]
+  offers        Offer[]  // One hotel can appear in multiple offers
 
   @@index([country])
   @@index([category])
@@ -71,6 +72,72 @@ model Category {
 }
 
 // ============================================
+// OFFERS (Hotel + Activities Packages)
+// ============================================
+
+model Offer {
+  id             String        @id @default(cuid())
+  title          String        // e.g., "Maldivian Paradise Escape"
+  tagline        String?       // e.g., "7 Days of Overwater Bliss"
+  description    String        @db.Text
+  duration       Int           // in days
+  imageUrl       String
+  galleryImages  String[]      // Array of image URLs
+
+  // Relationship to Hotel (many-to-one)
+  hotelId        String
+  hotel          Hotel         @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  // Activities included in this offer
+  activities     Activity[]
+
+  // Categorization
+  experienceType String        // e.g., "Adventure", "Wellness", "Cultural"
+
+  // Metadata
+  isTrending     Boolean       @default(false)
+  isFeatured     Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Reviews specific to this offer
+  reviews        OfferReview[]
+
+  @@index([hotelId])
+  @@index([experienceType])
+  @@index([isTrending])
+  @@index([isFeatured])
+}
+
+model Activity {
+  id          String  @id @default(cuid())
+  name        String
+  description String  @db.Text
+  duration    String  // e.g., "3 hours", "Full day"
+  imageUrl    String?
+  category    String  // e.g., "Dining", "Wellness", "Adventure", "Cultural"
+  offerId     String
+  offer       Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@index([offerId])
+  @@index([category])
+}
+
+model OfferReview {
+  id        String   @id @default(cuid())
+  offerId   String
+  offer     Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  user      String
+  rating    Int      // 1-5
+  comment   String   @db.Text
+  date      String   // Display format like "Dec 2024"
+  createdAt DateTime @default(now())
+
+  @@index([offerId])
+  @@index([rating])
+}
+
+// ============================================
 // CONTACT FORM SUBMISSIONS
 // ============================================
 
@@ -91,16 +158,17 @@ model ContactSubmission {
 
 // Hotel/Concierge inquiry submissions (from offer pages)
 model HotelInquiry {
-  id        String   @id @default(cuid())
-  hotelId   String
-  hotelName String
-  name      String
-  email     String
-  phone     String?
-  message   String
-  status    String   @default("new") // new, contacted, booked, closed
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  hotelId      String
+  hotelName    String
+  name         String
+  email        String
+  phone        String?
+  message      String
+  stayDuration Int?     // Duration in nights (for insights calculation)
+  status       String   @default("new") // new, contacted, booked, closed
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([hotelId])
   @@index([status])
@@ -203,14 +271,16 @@ model UserInteraction {
   id          String   @id @default(cuid())
   userId      String?  // null for anonymous users
   sessionId   String   // for anonymous tracking
-  hotelId     String
+  entityId    String   // hotel or offer ID
+  entityType  String   // "hotel" or "offer"
   action      String   // view, click, inquiry, bookmark
   moodContext String?  // mood selected when interaction happened
   createdAt   DateTime @default(now())
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([sessionId])
-  @@index([hotelId])
+  @@index([entityId])
+  @@index([entityType])
   @@index([action])
   @@index([createdAt])
 }

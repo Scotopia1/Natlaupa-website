@@ -123,3 +123,78 @@ export async function getAllDestinations() {
 export async function getAllCategories() {
   return prisma.category.findMany();
 }
+
+// ============================================
+// OFFER DATA FUNCTIONS
+// ============================================
+
+// Get offer by ID with hotel and activities
+export async function getOfferById(id: string) {
+  return prisma.offer.findUnique({
+    where: { id },
+    include: {
+      hotel: {
+        include: {
+          reviews: true,
+        },
+      },
+      activities: true,
+      reviews: true,
+    },
+  });
+}
+
+// Get all offers
+export async function getAllOffers() {
+  return prisma.offer.findMany({
+    include: {
+      hotel: true,
+      activities: { take: 3 },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+// Get trending offers
+export async function getTrendingOffers(limit = 10) {
+  return prisma.offer.findMany({
+    where: { isTrending: true },
+    include: {
+      hotel: true,
+      activities: { take: 3 },
+    },
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+// Get featured offers
+export async function getFeaturedOffers(limit = 10) {
+  return prisma.offer.findMany({
+    where: { isFeatured: true },
+    include: {
+      hotel: true,
+      activities: { take: 3 },
+    },
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+// Get offers by experience type
+export async function getOffersByExperienceType(experienceType: string, limit = 10) {
+  return prisma.offer.findMany({
+    where: {
+      experienceType: {
+        equals: experienceType,
+        mode: 'insensitive',
+      },
+    },
+    include: {
+      hotel: true,
+      activities: { take: 3 },
+    },
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+  });
+}

@@ -41,3 +41,39 @@ export interface Category {
   imageUrl: string;
   count: number;
 }
+
+export interface Activity {
+  id: string;
+  name: string;
+  description: string;
+  duration: string;
+  imageUrl?: string;
+  category: string;
+}
+
+export interface OfferReview {
+  id: string;
+  user: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+export interface Offer {
+  id: string;
+  title: string;
+  tagline?: string;
+  description: string;
+  duration: number;
+  imageUrl: string;
+  galleryImages: string[];
+  hotel: Hotel;
+  hotelId: string;
+  activities: Activity[];
+  experienceType: string;
+  isTrending: boolean;
+  isFeatured: boolean;
+  reviews?: OfferReview[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}

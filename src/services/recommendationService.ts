@@ -74,7 +74,7 @@ export async function getHotelsByMood(moodId: string, limit = 10): Promise<Recom
 
   return hotels.map(hotel => ({
     ...hotel,
-    moodScore: hotel.moodTags[0]?.weight || 0,
+    moodScore: Math.min(hotel.moodTags[0]?.weight || 0, 0.99),
     moodTags: hotel.moodTags.map(mt => ({
       moodId: mt.mood.name,
       weight: mt.weight
@@ -215,7 +215,7 @@ export async function getPersonalizedHotels(
 
     return {
       ...hotel,
-      moodScore: score,
+      moodScore: Math.min(score, 0.99),
       moodTags: hotel.moodTags.map(mt => ({
         moodId: mt.mood.name,
         weight: mt.weight

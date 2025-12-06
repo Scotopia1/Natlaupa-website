@@ -55,8 +55,13 @@ const ConciergeRecommendations: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [insights, setInsights] = useState({
+    searchTrend: '+0%',
+    topSearch: 'Maldives',
+    avgStay: '5 nights'
+  });
 
   const currentSeason = getCurrentSeason();
   const seasonData = SEASONS[currentSeason];
@@ -91,11 +96,11 @@ const ConciergeRecommendations: React.FC = () => {
         params.append('_t', Date.now().toString());
       }
 
-      const response = await fetch(`/api/recommendations?${params.toString()}`);
+      const response = await fetch(`/api/offers?${params.toString()}`);
       const data = await response.json();
 
-      if (data.hotels) {
-        setHotels(data.hotels.slice(0, 2));
+      if (data.offers) {
+        setOffers(data.offers.slice(0, 2));
       }
 
       // Fetch destinations separately (from database)
@@ -133,6 +138,14 @@ const ConciergeRecommendations: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Fetch insights on mount
+  useEffect(() => {
+    fetch('/api/insights')
+      .then(res => res.json())
+      .then(data => setInsights(data))
+      .catch(err => console.error('Failed to fetch insights:', err));
   }, []);
 
   // Fetch on mount and tab change
@@ -286,26 +299,26 @@ const ConciergeRecommendations: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {hotels.map((hotel, index) => (
+                    {offers.map((offer, index) => (
                       <motion.div
-                        key={hotel.id}
+                        key={offer.id}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.1 }}
                       >
-                        <Link href={`/offer/${hotel.id}`} className="group/hotel block">
+                        <Link href={`/offer/${offer.id}`} className="group/hotel block">
                           <div className="relative h-72 overflow-hidden rounded-sm mb-4 border border-white/10 group-hover/hotel:border-gold/30 transition-colors">
                             <img
-                              src={hotel.imageUrl}
-                              alt={hotel.name}
+                              src={offer.imageUrl}
+                              alt={offer.title}
                               className="w-full h-full object-cover grayscale group-hover/hotel:grayscale-0 transition-all duration-700 group-hover/hotel:scale-105"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-deepBlue via-transparent to-transparent" />
 
-                            {/* Rating Badge */}
+                            {/* Duration Badge */}
                             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
-                              <Star size={12} className="text-gold fill-gold" />
-                              <span className="text-deepBlue text-xs font-bold">{hotel.rating}</span>
+                              <Clock size={12} className="text-deepBlue" />
+                              <span className="text-deepBlue text-xs font-bold">{offer.duration} Days</span>
                             </div>
 
                             {/* Tab-specific Badge */}
@@ -321,26 +334,26 @@ const ConciergeRecommendations: React.FC = () => {
                                 <span className="text-xs font-bold uppercase">Trending</span>
                               </div>
                             )}
-                            {activeTab === 'for-you' && hotel.moodScore && (
+                            {activeTab === 'for-you' && (
                               <div className="absolute top-4 left-4 bg-gold/90 text-deepBlue px-3 py-1 rounded-full flex items-center gap-1">
                                 <Sparkles size={12} />
-                                <span className="text-xs font-bold uppercase">{Math.round(hotel.moodScore * 100)}% Match</span>
+                                <span className="text-xs font-bold uppercase">Featured</span>
                               </div>
                             )}
 
                             {/* Content */}
                             <div className="absolute bottom-0 left-0 right-0 p-6">
-                              <p className="text-gold text-xs uppercase tracking-widest mb-2">{hotel.category}</p>
+                              <p className="text-gold text-xs uppercase tracking-widest mb-2">{offer.experienceType}</p>
                               <h4 className="font-serif text-2xl text-white group-hover/hotel:text-gold transition-colors mb-2">
-                                {hotel.name}
+                                {offer.title}
                               </h4>
                               <div className="flex items-center gap-2 text-slate-300 text-sm">
                                 <MapPin size={14} />
-                                {hotel.location}
+                                {offer.hotel.name} · {offer.hotel.location}
                               </div>
-                              {hotel.personalizedReason && (
+                              {offer.tagline && (
                                 <p className="text-gold/80 text-xs mt-2 line-clamp-2">
-                                  {hotel.personalizedReason}
+                                  {offer.tagline}
                                 </p>
                               )}
                             </div>
@@ -405,15 +418,15 @@ const ConciergeRecommendations: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <span className="text-slate-400 text-sm">Searches up</span>
-                        <span className="text-gold font-bold">+34%</span>
+                        <span className="text-gold font-bold">{insights.searchTrend}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-slate-400 text-sm">Top search</span>
-                        <span className="text-white text-sm">Maldives</span>
+                        <span className="text-white text-sm">{insights.topSearch}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-slate-400 text-sm">Avg. stay</span>
-                        <span className="text-white text-sm">5 nights</span>
+                        <span className="text-white text-sm">{insights.avgStay}</span>
                       </div>
                     </div>
                   </motion.div>
