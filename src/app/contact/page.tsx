@@ -1,24 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, CheckCircle, Loader2 } from 'lucide-react';
-import Footer from '@/components/Footer';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Mail, Phone, MapPin, CheckCircle, Loader2 } from "lucide-react";
+import Footer from "@/components/Footer";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,21 +29,21 @@ export default function Contact() {
     setError(null);
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to submit');
+        throw new Error(data.error || "Failed to submit");
       }
 
       setIsSubmitted(true);
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -57,9 +59,13 @@ export default function Contact() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-serif text-5xl text-white mb-6">Get in Touch</h1>
+            <h1 className="font-serif text-5xl text-white mb-6">
+              Get in Touch
+            </h1>
             <p className="text-slate-400 text-lg font-light mb-12">
-              Our concierge team is available 24/7 to assist with your inquiries. Whether you are planning a honeymoon or a corporate retreat, we are here to help.
+              Our concierge team is available 24/7 to assist with your
+              inquiries. Whether you are planning a honeymoon or a corporate
+              retreat, we are here to help.
             </p>
 
             <div className="space-y-8">
@@ -81,7 +87,11 @@ export default function Contact() {
                 <MapPin className="text-gold mt-1" />
                 <div>
                   <h4 className="text-white font-semibold">Visit Us</h4>
-                  <p className="text-slate-400">101 Luxury Lane, Suite 500<br />Beverly Hills, CA 90210</p>
+                  <p className="text-slate-400">
+                    101 Luxury Lane, Suite 500
+                    <br />
+                    Beverly Hills, CA 90210
+                  </p>
                 </div>
               </div>
             </div>
@@ -99,8 +109,12 @@ export default function Contact() {
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gold/20 flex items-center justify-center">
                   <CheckCircle className="text-gold" size={32} />
                 </div>
-                <h3 className="font-serif text-2xl text-white mb-2">Message Received</h3>
-                <p className="text-slate-400 mb-6">Our concierge team will contact you within 24 hours.</p>
+                <h3 className="font-serif text-2xl text-white mb-2">
+                  Message Received
+                </h3>
+                <p className="text-slate-400 mb-6">
+                  Our concierge team will contact you within 24 hours.
+                </p>
                 <button
                   onClick={() => setIsSubmitted(false)}
                   className="text-gold hover:underline text-sm uppercase tracking-widest"
@@ -116,7 +130,9 @@ export default function Contact() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-white text-sm uppercase tracking-wide mb-2">Name</label>
+                  <label className="block text-white text-sm uppercase tracking-wide mb-2">
+                    Name
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -128,7 +144,9 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-white text-sm uppercase tracking-wide mb-2">Email</label>
+                  <label className="block text-white text-sm uppercase tracking-wide mb-2">
+                    Email
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -140,7 +158,9 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-white text-sm uppercase tracking-wide mb-2">Phone (Optional)</label>
+                  <label className="block text-white text-sm uppercase tracking-wide mb-2">
+                    Phone (Optional)
+                  </label>
                   <input
                     type="tel"
                     name="phone"
@@ -151,7 +171,9 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-white text-sm uppercase tracking-wide mb-2">Message</label>
+                  <label className="block text-white text-sm uppercase tracking-wide mb-2">
+                    Message
+                  </label>
                   <textarea
                     name="message"
                     value={formData.message}
@@ -161,6 +183,18 @@ export default function Contact() {
                     className="w-full bg-deepBlue border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
                     placeholder="How can we assist you?"
                   />
+                </div>
+                <div>
+                  <label className="inline-flex items-center text-white text-sm">
+                    <input
+                      type="checkbox"
+                      name="subscribe"
+                      className="form-checkbox h-4 w-4 text-gold bg-deepBlue border-white/10 focus:ring-gold focus:ring-2 focus:outline-none transition-colors"
+                    />
+                    <span className="ml-2">
+                      Subscribe to our newsletter for exclusive offers
+                    </span>
+                  </label>
                 </div>
                 <button
                   type="submit"
@@ -173,7 +207,7 @@ export default function Contact() {
                       Sending...
                     </>
                   ) : (
-                    'Send Message'
+                    "Send Message"
                   )}
                 </button>
               </form>
