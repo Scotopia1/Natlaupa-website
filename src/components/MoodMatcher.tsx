@@ -20,6 +20,7 @@ interface Mood {
 interface Hotel {
   id: string;
   name: string;
+  slug?: string;
   location: string;
   imageUrl: string;
   moodScore?: number;

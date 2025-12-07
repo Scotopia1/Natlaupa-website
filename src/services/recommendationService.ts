@@ -89,18 +89,19 @@ export async function getTrendingHotels(limit = 10): Promise<RecommendedHotel[]>
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const trendingInteractions = await prisma.userInteraction.groupBy({
-    by: ['hotelId'],
+    by: ['entityId'],
     where: {
+      entityType: 'hotel',
       createdAt: {
         gte: sevenDaysAgo
       }
     },
     _count: {
-      hotelId: true
+      entityId: true
     },
     orderBy: {
       _count: {
-        hotelId: 'desc'
+        entityId: 'desc'
       }
     },
     take: limit
@@ -115,7 +116,7 @@ export async function getTrendingHotels(limit = 10): Promise<RecommendedHotel[]>
     return hotels;
   }
 
-  const hotelIds = trendingInteractions.map(i => i.hotelId);
+  const hotelIds = trendingInteractions.map(i => i.entityId);
   const hotels = await prisma.hotel.findMany({
     where: {
       id: { in: hotelIds }

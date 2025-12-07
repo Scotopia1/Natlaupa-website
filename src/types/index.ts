@@ -9,6 +9,7 @@ export interface Review {
 export interface Hotel {
   id: string;
   name: string;
+  slug?: string;
   location: string;
   country: string;
   rating: number;
