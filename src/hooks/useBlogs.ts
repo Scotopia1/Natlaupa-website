@@ -97,8 +97,8 @@ export function useBlogs(filters?: BlogsFilter): UseBlogsResult {
         setTotal(data.total || transformedBlogs.length);
 
         // Extract unique tags
-        const allTags = transformedBlogs.flatMap(blog => blog.tags.map(tag => tag.name));
-        const uniqueTags = [...new Set(allTags)];
+        const allTags = transformedBlogs.flatMap((blog: any) => blog.tags.map((tag: any) => tag.name));
+        const uniqueTags = [...new Set(allTags)] as string[];
         setTags(uniqueTags);
       } else {
         setBlogs([]);

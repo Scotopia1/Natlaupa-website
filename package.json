@@ -4,15 +4,10 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "next dev --port 3001",
-    "build": "prisma generate && next build --webpack",
-    "postinstall": "prisma generate",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "db:seed": "npx tsx prisma/seed.ts",
     "audit:visual": "npx tsx visual-audit/audit.ts"
-  },
-  "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@google/genai": "^1.30.0",

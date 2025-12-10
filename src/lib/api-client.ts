@@ -161,6 +161,7 @@ export interface Hotel {
   id: string;
   name: string;
   slug?: string;
+  city: string;
   location: string;
   country: string;
   category: string;
@@ -239,6 +240,7 @@ export async function getHotelById(idOrSlug: string): Promise<Hotel> {
     id: serverHotel.id,
     name: serverHotel.name,
     slug: serverHotel.slug,
+    city: serverHotel.city || '',
     location: serverHotel.city || serverHotel.address || '',
     country: serverHotel.country || '',
     category: serverHotel.style?.name || 'Luxury',
