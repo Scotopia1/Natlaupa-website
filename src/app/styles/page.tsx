@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Leaf, Building2, Castle, Waves } from 'lucide-react';
-import { ALL_HOTELS, CATEGORIES } from '@/lib/constants';
+import { useHotels } from '@/hooks/useHotels';
 import Footer from '@/components/Footer';
 import { LucideIcon } from 'lucide-react';
 
@@ -23,23 +23,47 @@ const categoryDescriptions: Record<string, string> = {
 };
 
 export default function StylesPage() {
-  const stylesWithData = CATEGORIES.map(category => {
-    const hotels = ALL_HOTELS.filter(h => h.category === category.name);
-    const featuredImage = hotels[0]?.imageUrl || category.imageUrl;
-    const avgRating = hotels.length > 0
-      ? (hotels.reduce((sum, h) => sum + h.rating, 0) / hotels.length).toFixed(1)
+  const { hotels, categories, isLoading, error } = useHotels();
+
+  const stylesWithData = categories.map(category => {
+    const categoryHotels = hotels.filter(h => h.category === category.name);
+    const featuredImage = categoryHotels[0]?.imageUrl || category.imageUrl;
+    const avgRating = categoryHotels.length > 0
+      ? (categoryHotels.reduce((sum, h) => sum + h.rating, 0) / categoryHotels.length).toFixed(1)
       : '0';
 
     return {
       ...category,
       slug: category.name.toLowerCase().replace(/\s+/g, '-'),
-      hotelCount: hotels.length,
+      hotelCount: categoryHotels.length,
       featuredImage,
       avgRating,
       description: categoryDescriptions[category.name] || 'Discover unique properties in this category.',
       Icon: categoryIcons[category.name] || Building2,
     };
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center">
+        <div className="text-white text-xl">Loading styles...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl font-serif mb-4 text-white">Error Loading Styles</h2>
+          <p className="text-slate-400 mb-8">{error}</p>
+          <Link href="/" className="text-gold hover:underline">
+            Return Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

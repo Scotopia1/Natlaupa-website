@@ -2,38 +2,41 @@
 
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
-import { useOffers } from "@/hooks/useOffers";
-import OfferCard from "@/components/OfferCard";
+import { Search, SlidersHorizontal, X, Loader2, BookOpen } from "lucide-react";
+import { useBlogs } from "@/hooks/useBlogs";
+import BlogCard from "@/components/BlogCard";
 import Footer from "@/components/Footer";
 
-export default function OffersPage() {
+export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedExperienceType, setSelectedExperienceType] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"duration" | "title">("duration");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"publishedAt" | "title">("publishedAt");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch offers from server
-  const { offers, experienceTypes, isLoading } = useOffers();
+  // Fetch blogs from server
+  const { blogs, tags, isLoading } = useBlogs();
 
-  const filteredOffers = useMemo(() => {
-    return offers
-      .filter((offer) => {
+  const filteredBlogs = useMemo(() => {
+    return blogs
+      .filter((blog) => {
         const matchesSearch =
-          offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          offer.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          offer.hotel.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          offer.hotel.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          offer.hotel.country.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesExperienceType =
-          !selectedExperienceType || offer.experienceType === selectedExperienceType;
-        return matchesSearch && matchesExperienceType;
+          blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          blog.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (blog.excerpt && blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          blog.author.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          blog.author.lastName.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesTag =
+          !selectedTag || blog.tags.some(tag => tag.name === selectedTag);
+        return matchesSearch && matchesTag;
       })
       .sort((a, b) => {
         if (sortBy === "title") return a.title.localeCompare(b.title);
-        return a.duration - b.duration;
+        // Sort by published date (newest first)
+        const dateA = a.publishedAt || a.createdAt;
+        const dateB = b.publishedAt || b.createdAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
       });
-  }, [offers, searchQuery, selectedExperienceType, sortBy]);
+  }, [blogs, searchQuery, selectedTag, sortBy]);
 
   return (
     <>
@@ -47,14 +50,13 @@ export default function OffersPage() {
               className="text-center mb-12"
             >
               <span className="text-gold text-sm uppercase tracking-[0.3em] mb-4 block">
-                Our Collection
+                Stories & Insights
               </span>
               <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-white mb-6">
-                All Offers
+                Travel Blog
               </h1>
               <p className="text-xl text-slate-300 font-light max-w-2xl mx-auto">
-                Discover our curated selection of exceptional properties around
-                the world.
+                Discover inspiring stories, travel tips, and insider insights from our curated collection of luxury destinations.
               </p>
             </motion.div>
 
@@ -72,7 +74,7 @@ export default function OffersPage() {
                 />
                 <input
                   type="text"
-                  placeholder="Search offers, hotels, locations..."
+                  placeholder="Search articles, authors, topics..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 pl-12 pr-4 py-3 text-white placeholder-slate-500 focus:border-gold focus:outline-none transition-colors"
@@ -96,7 +98,7 @@ export default function OffersPage() {
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                   className="bg-white/5 border border-white/10 px-4 py-3 text-white focus:border-gold focus:outline-none cursor-pointer"
                 >
-                  <option value="duration">Duration: Short to Long</option>
+                  <option value="publishedAt">Latest First</option>
                   <option value="title">Title: A to Z</option>
                 </select>
               </div>
@@ -112,11 +114,11 @@ export default function OffersPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-white font-serif text-lg">
-                    Filter by Experience Type
+                    Filter by Tag
                   </h3>
-                  {selectedExperienceType && (
+                  {selectedTag && (
                     <button
-                      onClick={() => setSelectedExperienceType(null)}
+                      onClick={() => setSelectedTag(null)}
                       className="text-gold text-sm flex items-center gap-1 hover:underline"
                     >
                       <X size={14} />
@@ -125,23 +127,21 @@ export default function OffersPage() {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {experienceTypes.map((experienceType) => (
+                  {tags.map((tag) => (
                     <button
-                      key={experienceType}
+                      key={tag}
                       onClick={() =>
-                        setSelectedExperienceType(
-                          selectedExperienceType === experienceType
-                            ? null
-                            : experienceType
+                        setSelectedTag(
+                          selectedTag === tag ? null : tag
                         )
                       }
                       className={`px-4 py-2 text-sm uppercase tracking-widest border transition-colors ${
-                        selectedExperienceType === experienceType
+                        selectedTag === tag
                           ? "bg-gold text-deepBlue border-gold"
                           : "border-white/20 text-white hover:border-gold hover:text-gold"
                       }`}
                     >
-                      {experienceType}
+                      {tag}
                     </button>
                   ))}
                 </div>
@@ -157,26 +157,27 @@ export default function OffersPage() {
               <p className="text-slate-400">
                 Showing{" "}
                 <span className="text-white font-bold">
-                  {filteredOffers.length}
+                  {filteredBlogs.length}
                 </span>{" "}
-                {filteredOffers.length === 1 ? "offer" : "offers"}
+                {filteredBlogs.length === 1 ? "article" : "articles"}
               </p>
             </div>
 
             {isLoading ? (
               <div className="text-center py-24">
                 <Loader2 className="w-8 h-8 text-gold animate-spin mx-auto mb-4" />
-                <p className="text-slate-400">Loading offers...</p>
+                <p className="text-slate-400">Loading articles...</p>
               </div>
-            ) : filteredOffers.length === 0 ? (
+            ) : filteredBlogs.length === 0 ? (
               <div className="text-center py-24">
-                <p className="text-slate-400 text-lg">
-                  No offers match your search criteria.
+                <BookOpen className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <p className="text-slate-400 text-lg mb-2">
+                  No articles match your search criteria.
                 </p>
                 <button
                   onClick={() => {
                     setSearchQuery("");
-                    setSelectedExperienceType(null);
+                    setSelectedTag(null);
                   }}
                   className="mt-4 text-gold hover:underline"
                 >
@@ -185,8 +186,8 @@ export default function OffersPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredOffers.map((offer, index) => (
-                  <OfferCard key={offer.id} offer={offer} index={index} />
+                {filteredBlogs.map((blog, index) => (
+                  <BlogCard key={blog.id} blog={blog} index={index} />
                 ))}
               </div>
             )}

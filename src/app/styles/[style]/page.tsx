@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Leaf, Building2, Castle, Waves } from 'lucide-react';
-import { ALL_HOTELS, CATEGORIES } from '@/lib/constants';
+import { useHotels } from '@/hooks/useHotels';
 import HotelCard from '@/components/HotelCard';
 import Footer from '@/components/Footer';
 import { LucideIcon } from 'lucide-react';
+import type { Hotel, Category } from '@/types';
 
 const categoryIcons: Record<string, LucideIcon> = {
   'Eco-Lodges': Leaf,
@@ -16,31 +17,83 @@ const categoryIcons: Record<string, LucideIcon> = {
   'Overwater Villas': Waves,
 };
 
-const categoryDescriptions: Record<string, string> = {
-  'Eco-Lodges': 'Sustainable sanctuaries that harmonize luxury with nature. Experience eco-conscious hospitality without compromising on comfort. Our eco-lodges feature renewable energy, organic gardens, and minimal environmental impact while maintaining the highest standards of service.',
-  'Urban Suites': 'Sophisticated city retreats offering the finest in metropolitan living. Prime locations in the world\'s most exciting cities, stunning views, and world-class amenities. Perfect for business travelers and urban explorers seeking refined comfort.',
-  'Historic Castles': 'Step into centuries of heritage and aristocratic elegance. These meticulously restored fortresses and manor houses offer a timeless escape where history meets modern luxury. Experience regal living in authentic historical settings.',
-  'Overwater Villas': 'Float above crystal-clear waters in these iconic overwater retreats. The ultimate in tropical luxury and seclusion, featuring glass floors, private pools, and direct ocean access. Perfect for honeymoons and romantic getaways.',
-};
+interface Style {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  hotelCount: number;
+}
 
 export default function StylePage({ params }: { params: Promise<{ style: string }> }) {
-  const { style } = React.use(params);
-  const decodedStyle = decodeURIComponent(style).replace(/-/g, ' ');
+  const { style: styleSlug } = React.use(params);
+  const [style, setStyle] = useState<Style | null>(null);
+  const [allStyles, setAllStyles] = useState<Style[]>([]);
+  const [isLoadingStyle, setIsLoadingStyle] = useState(true);
+  const [styleError, setStyleError] = useState<string | null>(null);
 
-  const matchedCategory = CATEGORIES.find(
-    c => c.name.toLowerCase() === decodedStyle.toLowerCase()
-  );
+  // Fetch all styles for the "Explore Other Styles" section
+  useEffect(() => {
+    const fetchAllStyles = async () => {
+      try {
+        const response = await fetch('/api/styles');
+        const data = await response.json();
 
-  const hotels = matchedCategory
-    ? ALL_HOTELS.filter(h => h.category.toLowerCase() === matchedCategory.name.toLowerCase())
-    : [];
+        if (response.ok && data.data?.items) {
+          setAllStyles(data.data.items);
+        }
+      } catch (err) {
+        console.error('Error fetching all styles:', err);
+      }
+    };
 
-  if (!matchedCategory || hotels.length === 0) {
+    fetchAllStyles();
+  }, []);
+
+  // Fetch style by slug
+  useEffect(() => {
+    const fetchStyle = async () => {
+      try {
+        const response = await fetch(`/api/styles/${styleSlug}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Style not found');
+        }
+
+        setStyle(data.data);
+      } catch (err) {
+        console.error('Error fetching style:', err);
+        setStyleError(err instanceof Error ? err.message : 'Failed to fetch style');
+      } finally {
+        setIsLoadingStyle(false);
+      }
+    };
+
+    fetchStyle();
+  }, [styleSlug]);
+
+  // Fetch hotels filtered by style slug
+  const { hotels, isLoading: isLoadingHotels, error: hotelsError } = useHotels({ style: styleSlug });
+
+  const isLoading = isLoadingStyle || isLoadingHotels;
+  const error = styleError || hotelsError;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
     return (
       <div className="min-h-screen bg-deepBlue flex items-center justify-center text-white">
         <div className="text-center">
-          <h2 className="text-4xl font-serif mb-4">Style Not Found</h2>
-          <p className="text-slate-400 mb-8">We could not find properties in this category.</p>
+          <h2 className="text-4xl font-serif mb-4">Error Loading Style</h2>
+          <p className="text-slate-400 mb-8">{error}</p>
           <Link href="/styles" className="text-gold hover:underline">
             Browse All Styles
           </Link>
@@ -49,10 +102,24 @@ export default function StylePage({ params }: { params: Promise<{ style: string 
     );
   }
 
-  const Icon = categoryIcons[matchedCategory.name] || Building2;
-  const description = categoryDescriptions[matchedCategory.name] || 'Discover unique properties in this category.';
-  const heroImage = hotels[0]?.imageUrl || matchedCategory.imageUrl;
-  const avgRating = (hotels.reduce((sum, h) => sum + h.rating, 0) / hotels.length).toFixed(1);
+  if (!style) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center text-white">
+        <div className="text-center">
+          <h2 className="text-4xl font-serif mb-4">Style Not Found</h2>
+          <p className="text-slate-400 mb-8">We could not find this style.</p>
+          <Link href="/styles" className="text-gold hover:underline">
+            Browse All Styles
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const Icon = categoryIcons[style.name] || Building2;
+  const description = style.description || 'Discover unique properties in this style.';
+  const heroImage = hotels[0]?.imageUrl || style.imageUrl || 'https://picsum.photos/1920/1080';
+  const avgRating = hotels.length > 0 ? (hotels.reduce((sum, h) => sum + h.rating, 0) / hotels.length).toFixed(1) : '0.0';
 
   return (
     <>
@@ -62,7 +129,7 @@ export default function StylePage({ params }: { params: Promise<{ style: string 
           <div className="absolute inset-0">
             <img
               src={heroImage}
-              alt={matchedCategory.name}
+              alt={style.name}
               className="w-full h-full object-cover grayscale brightness-50"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-deepBlue via-deepBlue/50 to-transparent" />
@@ -91,7 +158,7 @@ export default function StylePage({ params }: { params: Promise<{ style: string 
                 </span>
               </div>
               <h1 className="font-serif text-5xl md:text-7xl text-white mb-4">
-                {matchedCategory.name}
+                {style.name}
               </h1>
               <p className="text-slate-300 text-lg max-w-2xl">
                 {avgRating} avg. rating
@@ -114,38 +181,51 @@ export default function StylePage({ params }: { params: Promise<{ style: string 
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-serif text-2xl text-white">
-                {matchedCategory.name} Collection
+                {style.name} Collection
               </h2>
               <Link href="/offers" className="text-gold text-sm hover:underline">
                 View All Offers
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {hotels.map((hotel, index) => (
-                <HotelCard key={hotel.id} hotel={hotel} index={index} />
-              ))}
-            </div>
+            {hotels.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {hotels.map((hotel, index) => (
+                  <HotelCard key={hotel.id} hotel={hotel} index={index} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-slate-400 text-lg">
+                  No properties available in this style yet.
+                </p>
+                <Link href="/styles" className="text-gold hover:underline mt-4 inline-block">
+                  Explore Other Styles
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
         {/* Other Styles */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="font-serif text-2xl text-white mb-8">Explore Other Styles</h2>
-            <div className="flex flex-wrap gap-3">
-              {CATEGORIES.filter(c => c.name !== matchedCategory.name).map(c => (
-                <Link
-                  key={c.id}
-                  href={`/styles/${c.name.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="px-4 py-2 border border-white/20 text-white hover:border-gold hover:text-gold transition-colors text-sm uppercase tracking-widest"
-                >
-                  {c.name}
-                </Link>
-              ))}
+        {allStyles.length > 0 && (
+          <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="font-serif text-2xl text-white mb-8">Explore Other Styles</h2>
+              <div className="flex flex-wrap gap-3">
+                {allStyles.filter(s => s.id !== style.id).map(s => (
+                  <Link
+                    key={s.id}
+                    href={`/styles/${s.slug}`}
+                    className="px-4 py-2 border border-white/20 text-white hover:border-gold hover:text-gold transition-colors text-sm uppercase tracking-widest"
+                  >
+                    {s.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
       <Footer />
     </>

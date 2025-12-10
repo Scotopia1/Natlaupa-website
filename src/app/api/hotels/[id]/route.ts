@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
-// GET - Fetch hotel by ID
+// Check if a string is a CUID (database ID)
+function isCuid(str: string): boolean {
+  return /^c[a-z0-9]{24}$/.test(str) || /^h\d+$/.test(str);
+}
+
+// GET - Fetch hotel by ID or slug
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,7 +15,13 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const response = await fetch(`${API_URL}/hotels/${id}`, {
+    // Determine if it's an ID or slug and use the appropriate endpoint
+    const isId = isCuid(id);
+    const endpoint = isId
+      ? `${API_URL}/hotels/${id}`
+      : `${API_URL}/hotels/slug/${id}`;
+
+    const response = await fetch(endpoint, {
       headers: { 'Content-Type': 'application/json' },
       next: { revalidate: 60 }, // Cache for 60 seconds
     });

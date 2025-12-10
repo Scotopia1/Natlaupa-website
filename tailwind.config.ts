@@ -20,6 +20,7 @@ const config: Config = {
     },
   },
   plugins: [
+    require('@tailwindcss/typography'),
     plugin(function({ addVariant }) {
       addVariant('hover-capable', '@media (hover: hover) and (pointer: fine)')
     })

@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MapPin } from 'lucide-react';
-import { ALL_HOTELS, COUNTRIES } from '@/lib/constants';
+import { useHotels } from '@/hooks/useHotels';
 import HotelCard from '@/components/HotelCard';
 import Footer from '@/components/Footer';
 
@@ -12,13 +12,37 @@ export default function CountryPage({ params }: { params: Promise<{ country: str
   const { country } = React.use(params);
   const decodedCountry = decodeURIComponent(country).replace(/-/g, ' ');
 
-  const matchedCountry = COUNTRIES.find(
+  const { hotels: allHotels, countries, isLoading, error } = useHotels();
+
+  const matchedCountry = countries.find(
     c => c.toLowerCase() === decodedCountry.toLowerCase()
   );
 
   const hotels = matchedCountry
-    ? ALL_HOTELS.filter(h => h.country.toLowerCase() === matchedCountry.toLowerCase())
+    ? allHotels.filter(h => h.country.toLowerCase() === matchedCountry.toLowerCase())
     : [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center text-white">
+        <div className="text-center">
+          <h2 className="text-4xl font-serif mb-4">Error Loading Country</h2>
+          <p className="text-slate-400 mb-8">{error}</p>
+          <Link href="/countries" className="text-gold hover:underline">
+            Browse All Countries
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!matchedCountry || hotels.length === 0) {
     return (
@@ -104,7 +128,7 @@ export default function CountryPage({ params }: { params: Promise<{ country: str
           <div className="max-w-7xl mx-auto">
             <h2 className="font-serif text-2xl text-white mb-8">Explore Other Countries</h2>
             <div className="flex flex-wrap gap-3">
-              {COUNTRIES.filter(c => c !== matchedCountry).map(c => (
+              {countries.filter(c => c !== matchedCountry).map(c => (
                 <Link
                   key={c}
                   href={`/countries/${c.toLowerCase().replace(/\s+/g, '-')}`}

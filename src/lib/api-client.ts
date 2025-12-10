@@ -160,6 +160,7 @@ export async function submitHotelInquiry(data: HotelInquiryInput) {
 export interface Hotel {
   id: string;
   name: string;
+  slug?: string;
   location: string;
   country: string;
   category: string;
@@ -216,9 +217,51 @@ export async function getHotels(filters?: HotelsFilter): Promise<{ items: Hotel[
   return handleResponse(response);
 }
 
-export async function getHotelById(id: string): Promise<Hotel> {
-  const response = await fetch(`${API_URL}/hotels/${id}`);
-  return handleResponse(response);
+export async function getHotelById(idOrSlug: string): Promise<Hotel> {
+  // Use the Next.js API route which handles both ID and slug
+  const response = await fetch(`/api/hotels/${idOrSlug}`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new ApiError(
+      data.error?.message || data.message || 'Hotel not found',
+      data.error?.code || 'NOT_FOUND',
+      response.status
+    );
+  }
+
+  // Transform server response to match client Hotel type
+  const serverHotel = data.data;
+  const images = serverHotel.images || [];
+  const amenities = serverHotel.amenities || [];
+
+  return {
+    id: serverHotel.id,
+    name: serverHotel.name,
+    slug: serverHotel.slug,
+    location: serverHotel.city || serverHotel.address || '',
+    country: serverHotel.country || '',
+    category: serverHotel.style?.name || 'Luxury',
+    rating: serverHotel.starRating || 5,
+    imageUrl: serverHotel.thumbnailImage || images.find((img: { isPrimary?: boolean }) => img.isPrimary)?.url || images[0]?.url || 'https://picsum.photos/600/400',
+    description: serverHotel.description || serverHotel.shortDescription || '',
+    ctaPhrase: serverHotel.ctaPhrase,
+    amenities: amenities.map((a: { name: string }) => a.name),
+    galleryImages: images.map((img: { url: string }) => img.url),
+    isTrending: serverHotel.isFeatured || false,
+    lat: serverHotel.latitude,
+    lng: serverHotel.longitude,
+    destination: serverHotel.destination ? {
+      id: serverHotel.destination.id,
+      name: serverHotel.destination.name,
+      country: serverHotel.destination.country || serverHotel.country
+    } : undefined,
+    style: serverHotel.style ? {
+      id: serverHotel.style.id,
+      name: serverHotel.style.name
+    } : undefined,
+    reviews: serverHotel.reviews || [],
+  };
 }
 
 export async function getTrendingHotels(limit: number = 6): Promise<Hotel[]> {

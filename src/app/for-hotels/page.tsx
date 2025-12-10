@@ -1,64 +1,91 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, Bell, Tag, DollarSign, Briefcase, ArrowRight, CheckCircle, X, ShieldCheck, Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import Footer from '@/components/Footer';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Building2,
+  Bell,
+  Tag,
+  DollarSign,
+  Briefcase,
+  ArrowRight,
+  CheckCircle,
+  X,
+  ShieldCheck,
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
+import Footer from "@/components/Footer";
 
 const keyBenefits = [
   {
-    number: '01',
+    number: "01",
     icon: Bell,
-    title: 'Regular Deal Alerts',
-    description: 'Receive instant notifications for room offers, flash sales and exclusive packages, empower your clients with the best available experiences and respond with agility to market shifts.'
+    title: "Regular Deal Alerts",
+    description:
+      "Receive instant notifications for room offers, flash sales and exclusive packages, empower your clients with the best available experiences and respond with agility to market shifts.",
   },
   {
-    number: '02',
+    number: "02",
     icon: Tag,
-    title: 'Negotiated Rates & Perks',
-    description: 'Leverage below-market pricing and complimentary add-ons to craft irresistibly upscale stays that reinforce your reputation for excellence and delight every guest.'
+    title: "Negotiated Rates & Perks",
+    description:
+      "Leverage below-market pricing and complimentary add-ons to craft irresistibly upscale stays that reinforce your reputation for excellence and delight every guest.",
   },
   {
-    number: '03',
+    number: "03",
     icon: DollarSign,
-    title: 'High-Yield Commissions',
-    description: 'Capture commissions on every booking, turning your sales efforts into a lucrative revenue stream while maintaining premium service standards.'
+    title: "High-Yield Commissions",
+    description:
+      "Capture commissions on every booking, turning your sales efforts into a lucrative revenue stream while maintaining premium service standards.",
   },
   {
-    number: '04',
+    number: "04",
     icon: Briefcase,
-    title: 'Sales Toolkit',
-    description: 'Access ready-to-use marketing assets, email templates and pitch decks—streamline your outreach, maintain brand consistency and close deals with confidence.'
-  }
+    title: "Sales Toolkit",
+    description:
+      "Access ready-to-use marketing assets, email templates and pitch decks—streamline your outreach, maintain brand consistency and close deals with confidence.",
+  },
 ];
 
 const additionalFeatures = [
-  'Dedicated partnership manager',
-  'Priority support channel',
-  'Real-time inventory access',
-  'Co-branded marketing materials',
-  'Performance analytics dashboard',
-  'Training and onboarding support'
+  "Dedicated partnership manager",
+  "Priority support channel",
+  "Real-time inventory access",
+  "Co-branded marketing materials",
+  "Performance analytics dashboard",
+  "Training and onboarding support",
 ];
+
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface ErrorResponse {
+  code: string;
+  message: string;
+  details?: ValidationError[];
+}
 
 export default function ForHotels() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<ErrorResponse | null>(null);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    companyName: '',
-    message: '',
+    contactName: "",
+    hotelName: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,26 +94,47 @@ export default function ForHotels() {
     setFormError(null);
 
     try {
-      const response = await fetch('/api/partnership', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/v1/partnership-applications",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to submit application');
+        // Set the error object from the API response
+        if (data.error) {
+          setFormError(data.error);
+        } else {
+          setFormError({
+            code: "APP",
+            message: "Failed to submit application",
+          });
+        }
+        return;
       }
 
       setFormSubmitted(true);
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', companyName: '', message: '' });
+      setFormData({
+        contactName: "",
+        hotelName: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
 
       setTimeout(() => {
         setIsModalOpen(false);
         setFormSubmitted(false);
       }, 3000);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Something went wrong');
+      setFormError({
+        code: "APP",
+        message: err instanceof Error ? err.message : "Something went wrong",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -95,13 +143,13 @@ export default function ForHotels() {
   // Lock scroll when modal is open
   useEffect(() => {
     if (isModalOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       // Pause Lenis smooth scroll if active
       if (window.lenis) {
         window.lenis.stop();
       }
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
       // Resume Lenis smooth scroll
       if (window.lenis) {
         window.lenis.start();
@@ -109,7 +157,7 @@ export default function ForHotels() {
     }
 
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
       if (window.lenis) {
         window.lenis.start();
       }
@@ -128,7 +176,9 @@ export default function ForHotels() {
               className="flex items-center justify-center gap-3 mb-6"
             >
               <Building2 className="text-gold" size={28} />
-              <span className="text-gold text-sm uppercase tracking-[0.3em]">For Hotels</span>
+              <span className="text-gold text-sm uppercase tracking-[0.3em]">
+                For Hotels
+              </span>
             </motion.div>
 
             <motion.h1
@@ -146,8 +196,9 @@ export default function ForHotels() {
               transition={{ delay: 0.2 }}
               className="text-xl text-slate-300 font-light leading-relaxed mb-12 max-w-2xl mx-auto"
             >
-              Join our exclusive network of hospitality professionals. Access premium deals,
-              earn competitive commissions, and deliver exceptional experiences to discerning travelers.
+              Join our exclusive network of hospitality professionals. Access
+              premium deals, earn competitive commissions, and deliver
+              exceptional experiences to discerning travelers.
             </motion.p>
 
             <motion.div
@@ -175,7 +226,9 @@ export default function ForHotels() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <span className="text-gold text-sm uppercase tracking-[0.3em] mb-4 block">Why Partner With Us</span>
+              <span className="text-gold text-sm uppercase tracking-[0.3em] mb-4 block">
+                Why Partner With Us
+              </span>
               <h2 className="font-serif text-3xl md:text-5xl text-white">
                 Key Benefits
               </h2>
@@ -259,9 +312,21 @@ export default function ForHotels() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { step: '01', title: 'Apply', desc: 'Submit your partnership application' },
-                { step: '02', title: 'Get Verified', desc: 'Our team reviews your credentials' },
-                { step: '03', title: 'Start Earning', desc: 'Access deals and earn commissions' },
+                {
+                  step: "01",
+                  title: "Apply",
+                  desc: "Submit your partnership application",
+                },
+                {
+                  step: "02",
+                  title: "Get Verified",
+                  desc: "Our team reviews your credentials",
+                },
+                {
+                  step: "03",
+                  title: "Start Earning",
+                  desc: "Access deals and earn commissions",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={item.step}
@@ -272,9 +337,13 @@ export default function ForHotels() {
                   className="text-center"
                 >
                   <div className="w-16 h-16 mx-auto mb-6 rounded-full border-2 border-gold flex items-center justify-center">
-                    <span className="font-serif text-xl text-gold">{item.step}</span>
+                    <span className="font-serif text-xl text-gold">
+                      {item.step}
+                    </span>
                   </div>
-                  <h3 className="font-serif text-xl text-white mb-2">{item.title}</h3>
+                  <h3 className="font-serif text-xl text-white mb-2">
+                    {item.title}
+                  </h3>
                   <p className="text-slate-400">{item.desc}</p>
                 </motion.div>
               ))}
@@ -300,7 +369,8 @@ export default function ForHotels() {
               transition={{ delay: 0.1 }}
               className="text-slate-400 mb-8"
             >
-              No payment required. Submit your application and our partnerships team will contact you within 48 hours.
+              No payment required. Submit your application and our partnerships
+              team will contact you within 48 hours.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -346,6 +416,7 @@ export default function ForHotels() {
               data-lenis-prevent
             >
               <button
+                title="Close"
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
               >
@@ -357,53 +428,59 @@ export default function ForHotels() {
                   <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gold/20 flex items-center justify-center">
                     <ShieldCheck className="text-gold" size={32} />
                   </div>
-                  <h3 className="font-serif text-2xl text-white mb-2">Application Received</h3>
-                  <p className="text-slate-400">Our partnerships team will contact you within 48 hours.</p>
+                  <h3 className="font-serif text-2xl text-white mb-2">
+                    Application Received
+                  </h3>
+                  <p className="text-slate-400">
+                    Our partnerships team will contact you within 48 hours.
+                  </p>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center gap-3 mb-6">
                     <Building2 className="text-gold" size={24} />
-                    <h3 className="font-serif text-2xl text-white">Partnership Application</h3>
+                    <h3 className="font-serif text-2xl text-white">
+                      Partnership Application
+                    </h3>
                   </div>
                   <p className="text-slate-400 text-sm mb-8">
-                    Complete the form below and our team will review your application.
+                    Complete the form below and our team will review your
+                    application.
                   </p>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {formError && (
-                      <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-sm">
-                        {formError}
+                      <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-sm space-y-2">
+                        <p className="font-medium">{formError.message}</p>
+                        {formError.details && formError.details.length > 0 && (
+                          <ul className="space-y-1 pl-4">
+                            {formError.details.map((detail, idx) => (
+                              <li key={idx} className="text-xs list-disc">
+                                <span className="font-medium capitalize">{detail.field}:</span> {detail.message}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     )}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs uppercase tracking-widest text-gold mb-2">First Name</label>
-                        <input
-                          type="text"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          required
-                          className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
-                          placeholder="John"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs uppercase tracking-widest text-gold mb-2">Last Name</label>
-                        <input
-                          type="text"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          required
-                          className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
-                          placeholder="Doe"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">
+                        Contact Name
+                      </label>
+                      <input
+                        type="text"
+                        name="contactName"
+                        value={formData.contactName}
+                        onChange={handleChange}
+                        required
+                        className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
+                        placeholder="John Doe"
+                      />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Email Address</label>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">
+                        Email Address
+                      </label>
                       <input
                         type="email"
                         name="email"
@@ -415,19 +492,23 @@ export default function ForHotels() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Company / Agency Name</label>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">
+                        Hotel / Company Name
+                      </label>
                       <input
                         type="text"
-                        name="companyName"
-                        value={formData.companyName}
+                        name="hotelName"
+                        value={formData.hotelName}
                         onChange={handleChange}
                         required
                         className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
-                        placeholder="Luxury Travel Agency"
+                        placeholder="Luxury Hotel & Resort"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Phone Number</label>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">
+                        Phone Number
+                      </label>
                       <input
                         type="tel"
                         name="phone"
@@ -438,7 +519,9 @@ export default function ForHotels() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Tell Us About Your Business</label>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">
+                        Tell Us About Your Business
+                      </label>
                       <textarea
                         name="message"
                         value={formData.message}
@@ -460,7 +543,7 @@ export default function ForHotels() {
                           Submitting...
                         </>
                       ) : (
-                        'Submit Application'
+                        "Submit Application"
                       )}
                     </button>
                   </form>

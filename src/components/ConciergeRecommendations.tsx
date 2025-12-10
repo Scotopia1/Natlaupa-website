@@ -116,7 +116,7 @@ const ConciergeRecommendations: React.FC = () => {
             seenCountries.add(hotel.country);
             uniqueDestinations.push({
               id: hotel.id,
-              name: hotel.location.split(',')[0],
+              name: hotel.location ? hotel.location.split(',')[0] : hotel.name,
               country: hotel.country,
               imageUrl: hotel.imageUrl,
               temp: Math.floor(Math.random() * 20) + 15 // Random temp 15-35

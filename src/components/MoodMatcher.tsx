@@ -1,10 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Compass, Palette, Leaf, Sparkles, ArrowRight, Check, Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import { trackMoodSelection, hasConsent } from '@/services/trackingService';
+import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Heart,
+  Compass,
+  Palette,
+  Leaf,
+  Sparkles,
+  ArrowRight,
+  Check,
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
+import { trackMoodSelection, hasConsent } from "@/services/trackingService";
 
 interface Mood {
   id: string;
@@ -29,45 +38,50 @@ interface Hotel {
 
 const MOODS: Mood[] = [
   {
-    id: 'romantic',
-    name: 'Romantic Escape',
-    tagline: 'For two hearts seeking solitude',
+    id: "romantic",
+    name: "Romantic Escape",
+    tagline: "For two hearts seeking solitude",
     icon: Heart,
-    color: 'from-rose-500/20 to-pink-500/20',
-    keywords: ['intimate', 'couple', 'honeymoon', 'private'],
-    description: 'Secluded villas, candlelit dinners, and sunsets designed for two.',
-    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800'
+    color: "from-rose-500/20 to-pink-500/20",
+    keywords: ["intimate", "couple", "honeymoon", "private"],
+    description:
+      "Secluded villas, candlelit dinners, and sunsets designed for two.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
   },
   {
-    id: 'adventure',
-    name: 'Adventure Seeker',
-    tagline: 'For the bold and curious',
+    id: "adventure",
+    name: "Adventure Seeker",
+    tagline: "For the bold and curious",
     icon: Compass,
-    color: 'from-orange-500/20 to-amber-500/20',
-    keywords: ['active', 'nature', 'exploration', 'outdoor'],
-    description: 'Wake up to mountains, dive into oceans, and chase horizons.',
-    imageUrl: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800'
+    color: "from-orange-500/20 to-amber-500/20",
+    keywords: ["active", "nature", "exploration", "outdoor"],
+    description: "Wake up to mountains, dive into oceans, and chase horizons.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800",
   },
   {
-    id: 'cultural',
-    name: 'Cultural Immersion',
-    tagline: 'For the curious soul',
+    id: "cultural",
+    name: "Cultural Immersion",
+    tagline: "For the curious soul",
     icon: Palette,
-    color: 'from-purple-500/20 to-indigo-500/20',
-    keywords: ['historic', 'art', 'heritage', 'local'],
-    description: 'Stay where history whispers and art speaks volumes.',
-    imageUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800'
+    color: "from-purple-500/20 to-indigo-500/20",
+    keywords: ["historic", "art", "heritage", "local"],
+    description: "Stay where history whispers and art speaks volumes.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800",
   },
   {
-    id: 'wellness',
-    name: 'Pure Relaxation',
-    tagline: 'For body and mind renewal',
+    id: "wellness",
+    name: "Pure Relaxation",
+    tagline: "For body and mind renewal",
     icon: Leaf,
-    color: 'from-emerald-500/20 to-teal-500/20',
-    keywords: ['spa', 'wellness', 'retreat', 'peaceful'],
-    description: 'Spas, meditation gardens, and the sound of silence.',
-    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800'
-  }
+    color: "from-emerald-500/20 to-teal-500/20",
+    keywords: ["spa", "wellness", "retreat", "peaceful"],
+    description: "Spas, meditation gardens, and the sound of silence.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+  },
 ];
 
 const MoodMatcher: React.FC = () => {
@@ -80,22 +94,24 @@ const MoodMatcher: React.FC = () => {
 
   // Detect touch devices to prevent double-tap requirement on iOS
   useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  const activeMood = MOODS.find(m => m.id === selectedMood);
+  const activeMood = MOODS.find((m) => m.id === selectedMood);
 
   // Fetch default trending hotels on mount
   useEffect(() => {
     const fetchDefaultHotels = async () => {
       try {
-        const response = await fetch('/api/recommendations?type=trending&limit=3');
+        const response = await fetch(
+          "/api/recommendations?type=trending&limit=3"
+        );
         const data = await response.json();
         if (data.hotels) {
           setDefaultHotels(data.hotels);
         }
       } catch (error) {
-        console.error('Error fetching default hotels:', error);
+        console.error("Error fetching default hotels:", error);
       }
     };
 
@@ -106,13 +122,15 @@ const MoodMatcher: React.FC = () => {
   const fetchMoodHotels = useCallback(async (moodId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/recommendations?type=mood&mood=${moodId}&limit=3`);
+      const response = await fetch(
+        `/api/recommendations?type=mood&mood=${moodId}&limit=3`
+      );
       const data = await response.json();
       if (data.hotels) {
         setHotels(data.hotels);
       }
     } catch (error) {
-      console.error('Error fetching mood hotels:', error);
+      console.error("Error fetching mood hotels:", error);
       setHotels([]);
     } finally {
       setIsLoading(false);
@@ -130,7 +148,7 @@ const MoodMatcher: React.FC = () => {
       setSelectedMood(moodId);
 
       // Track mood selection if consent is given
-      if (hasConsent('personalization')) {
+      if (hasConsent("personalization")) {
         await trackMoodSelection(moodId);
       }
 
@@ -140,7 +158,8 @@ const MoodMatcher: React.FC = () => {
   };
 
   // Get hotels to display
-  const displayHotels = selectedMood && hotels.length > 0 ? hotels : defaultHotels;
+  const displayHotels =
+    selectedMood && hotels.length > 0 ? hotels : defaultHotels;
 
   return (
     <section className="py-24 bg-deepBlue relative overflow-hidden">
@@ -167,7 +186,9 @@ const MoodMatcher: React.FC = () => {
         >
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="text-gold" size={20} />
-            <span className="text-gold text-sm uppercase tracking-[0.3em]">Personalize Your Journey</span>
+            <span className="text-gold text-sm uppercase tracking-[0.3em]">
+              Personalize Your Journey
+            </span>
           </div>
           <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">
             What's Your <span className="italic text-gold">Mood</span>?
@@ -196,8 +217,8 @@ const MoodMatcher: React.FC = () => {
                 onMouseLeave={() => !isTouchDevice && setHoveredMood(null)}
                 className={`relative p-6 md:p-8 rounded-sm border transition-all duration-500 text-left group ${
                   isSelected
-                    ? 'border-gold bg-gold/10'
-                    : 'border-white/10 hover-capable:hover:border-gold/50 bg-white/5'
+                    ? "border-gold bg-gold/10"
+                    : "border-white/10 hover-capable:hover:border-gold/50 bg-white/5"
                 }`}
               >
                 {/* Selection Indicator */}
@@ -212,16 +233,25 @@ const MoodMatcher: React.FC = () => {
                 )}
 
                 {/* Icon */}
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-all duration-300 ${
-                  isSelected || isHovered ? 'bg-gold' : 'bg-white/10'
-                }`}>
-                  <Icon size={24} className={isSelected || isHovered ? 'text-deepBlue' : 'text-gold'} />
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-all duration-300 ${
+                    isSelected || isHovered ? "bg-gold" : "bg-white/10"
+                  }`}
+                >
+                  <Icon
+                    size={24}
+                    className={
+                      isSelected || isHovered ? "text-deepBlue" : "text-gold"
+                    }
+                  />
                 </div>
 
                 {/* Content */}
-                <h3 className={`font-serif text-lg md:text-xl mb-2 transition-colors ${
-                  isSelected ? 'text-gold' : 'text-white'
-                }`}>
+                <h3
+                  className={`font-serif text-lg md:text-xl mb-2 transition-colors ${
+                    isSelected ? "text-gold" : "text-white"
+                  }`}
+                >
                   {mood.name}
                 </h3>
                 <p className="text-slate-400 text-xs md:text-sm hidden md:block">
@@ -254,7 +284,9 @@ const MoodMatcher: React.FC = () => {
                   <div className="absolute bottom-8 left-8 right-8">
                     <div className="flex items-center gap-2 text-gold mb-3">
                       <activeMood.icon size={20} />
-                      <span className="text-sm uppercase tracking-widest">Selected Mood</span>
+                      <span className="text-sm uppercase tracking-widest">
+                        Selected Mood
+                      </span>
                     </div>
                     <h3 className="font-serif text-3xl md:text-4xl text-white">
                       {activeMood.name}
@@ -268,8 +300,10 @@ const MoodMatcher: React.FC = () => {
                     "{activeMood.description}"
                   </p>
                   <p className="text-slate-400 mb-8">
-                    We've curated a selection of properties that perfectly match your desire for {activeMood.name.toLowerCase()}.
-                    Each stay has been handpicked for its ability to deliver this unique experience.
+                    We've curated a selection of properties that perfectly match
+                    your desire for {activeMood.name.toLowerCase()}. Each stay
+                    has been handpicked for its ability to deliver this unique
+                    experience.
                   </p>
                   <Link
                     href="/offers"
@@ -292,7 +326,7 @@ const MoodMatcher: React.FC = () => {
         >
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-serif text-2xl text-white">
-              {selectedMood ? 'Matching Properties' : 'Popular Picks'}
+              {selectedMood ? "Matching Properties" : "Popular Picks"}
             </h3>
             <Link
               href="/offers"
@@ -316,7 +350,7 @@ const MoodMatcher: React.FC = () => {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Link href={`/hotel/${hotel.slug || hotel.id}`} className="group block">
+                  <Link href={`/hotel/${hotel.slug}`} className="group block">
                     <div className="relative h-64 overflow-hidden rounded-sm mb-4">
                       <img
                         src={hotel.imageUrl}

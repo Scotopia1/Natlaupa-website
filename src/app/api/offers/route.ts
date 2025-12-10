@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTrendingOffers, getFeaturedOffers, getOffersByExperienceType, getAllOffers } from '@/lib/db';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 type OfferType = 'seasonal' | 'trending' | 'for-you';
 
@@ -33,67 +34,50 @@ export async function GET(request: NextRequest) {
     const type = (searchParams.get('type') || 'trending') as OfferType;
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    let offers;
+    // Build query params for server
+    const params = new URLSearchParams();
+    params.append('limit', limit.toString());
 
     switch (type) {
       case 'seasonal':
         // Get offers matching current season's experience type
         const experienceType = getSeasonalExperienceType();
-        offers = await getOffersByExperienceType(experienceType, limit);
+        params.append('experienceType', experienceType);
         break;
 
       case 'trending':
-        // Get trending offers
-        offers = await getTrendingOffers(limit);
+        params.append('isTrending', 'true');
         break;
 
       case 'for-you':
-        // For now, return featured offers
-        // TODO: Implement personalized logic based on user preferences
-        offers = await getFeaturedOffers(limit);
+        params.append('isFeatured', 'true');
         break;
 
       default:
-        // Default to trending
-        offers = await getTrendingOffers(limit);
+        params.append('isTrending', 'true');
     }
 
-    // If no offers found, fallback to all offers
-    if (!offers || offers.length === 0) {
-      offers = await getAllOffers();
-      offers = offers.slice(0, limit);
+    // Fetch from server API (using public endpoint)
+    const response = await fetch(`${API_URL}/offers/public?${params.toString()}`, {
+      headers: { 'Content-Type': 'application/json' },
+      next: { revalidate: 60 }, // Cache for 60 seconds
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: errorData.error?.message || 'Failed to fetch offers' },
+        { status: response.status }
+      );
     }
+
+    const data = await response.json();
 
     return NextResponse.json({
       success: true,
       type,
-      count: offers.length,
-      offers: offers.map(offer => ({
-        id: offer.id,
-        title: offer.title,
-        tagline: offer.tagline,
-        description: offer.description,
-        duration: offer.duration,
-        imageUrl: offer.imageUrl,
-        galleryImages: offer.galleryImages,
-        experienceType: offer.experienceType,
-        isTrending: offer.isTrending,
-        isFeatured: offer.isFeatured,
-        hotel: {
-          id: offer.hotel.id,
-          name: offer.hotel.name,
-          location: offer.hotel.location,
-          country: offer.hotel.country,
-          rating: offer.hotel.rating,
-          category: offer.hotel.category,
-        },
-        activities: offer.activities.map(activity => ({
-          id: activity.id,
-          name: activity.name,
-          duration: activity.duration,
-          category: activity.category,
-        })),
-      }))
+      count: data.data?.offers?.length || 0,
+      offers: data.data?.offers || []
     });
   } catch (error) {
     console.error('Error fetching offers:', error);

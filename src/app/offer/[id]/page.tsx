@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Star,
@@ -16,75 +16,84 @@ import {
   Loader2,
   ExternalLink,
   Sparkles,
-  Check
-} from 'lucide-react';
-import Footer from '@/components/Footer';
-import type { Offer } from '@/lib/types';
-import { isCuid } from '@/lib/slugify';
+  Check,
+} from "lucide-react";
+import Footer from "@/components/Footer";
+import { useOffer } from "@/hooks/useOffers";
+import { isCuid } from "@/lib/slugify";
+import parse from "html-react-parser";
 
-export default function OfferDetailPage({ params }: { params: Promise<{ id: string }> }) {
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface ErrorResponse {
+  code: string;
+  message: string;
+  details?: ValidationError[];
+}
+
+export default function OfferDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = React.use(params);
   const router = useRouter();
-  const [offer, setOffer] = useState<Offer | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [expandedSection, setExpandedSection] = useState<string | null>('accommodation');
+  const { offer, isLoading, error } = useOffer(id);
+  const [expandedSection, setExpandedSection] = useState<string | null>(
+    "accommodation"
+  );
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<ErrorResponse | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    travelDates: '',
-    guests: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+    travelDates: "",
+    guests: "",
   });
 
-  // Fetch offer data and handle redirects
+  // Handle redirects for ID-based URLs
   useEffect(() => {
-    const fetchOffer = async () => {
-      try {
-        const response = await fetch(`/api/offers/${id}`);
-        if (!response.ok) throw new Error('Offer not found');
-        const data = await response.json();
-        setOffer(data.offer);
-
-        // Redirect ID-based URLs to slug-based URLs (SEO best practice)
-        const isId = isCuid(id);
-        if (isId && data.offer.slug) {
-          router.replace(`/offer/${data.offer.slug}`);
-        }
-      } catch (error) {
-        console.error('Error fetching offer:', error);
-      } finally {
-        setIsLoading(false);
+    if (offer && offer.slug) {
+      const isId = isCuid(id);
+      if (isId) {
+        router.replace(`/offer/${offer.slug}`);
       }
-    };
+    }
 
-    fetchOffer();
-    window.scrollTo(0, 0);
-  }, [id, router]);
+    // Scroll to top when offer loads
+    if (offer) {
+      window.scrollTo(0, 0);
+    }
+  }, [id, offer, router]);
 
   // Lock scroll when modal is open
   useEffect(() => {
     if (isContactModalOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       if (window.lenis) window.lenis.stop();
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
       if (window.lenis) window.lenis.start();
     }
 
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
       if (window.lenis) window.lenis.start();
     };
   }, [isContactModalOpen]);
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -95,14 +104,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
     setFormError(null);
 
     try {
-      const response = await fetch('/api/inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           offerId: offer.id,
-          offerTitle: offer.title,
-          hotelId: offer.hotel.id,
-          hotelName: offer.hotel.name,
           name: formData.name,
           email: formData.email,
           phone: formData.phone || undefined,
@@ -114,18 +120,37 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to submit inquiry');
+        // Set the error object from the API response
+        if (data.error) {
+          setFormError(data.error);
+        } else {
+          setFormError({
+            code: "APP",
+            message: data.message || "Failed to submit inquiry",
+          });
+        }
+        return;
       }
 
       setFormSubmitted(true);
-      setFormData({ name: '', email: '', phone: '', message: '', travelDates: '', guests: '' });
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        travelDates: "",
+        guests: "",
+      });
 
       setTimeout(() => {
         setIsContactModalOpen(false);
         setFormSubmitted(false);
       }, 3000);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Something went wrong');
+      setFormError({
+        code: "APP",
+        message: err instanceof Error ? err.message : "Something went wrong",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -133,7 +158,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
 
   // Group activities by category
   const activityCategories = offer?.activities.reduce((acc, activity) => {
-    const category = activity.category || 'Other';
+    const category = activity.category || "Other";
     if (!acc[category]) acc[category] = [];
     acc[category].push(activity);
     return acc;
@@ -151,8 +176,12 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="min-h-screen bg-deepBlue flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-serif text-4xl text-white mb-4">Offer Not Found</h1>
-          <p className="text-slate-400 mb-8">The offer you're looking for doesn't exist.</p>
+          <h1 className="font-serif text-4xl text-white mb-4">
+            Offer Not Found
+          </h1>
+          <p className="text-slate-400 mb-8">
+            The offer you're looking for doesn't exist.
+          </p>
           <Link
             href="/offers"
             className="inline-flex items-center gap-2 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest hover:bg-white transition-colors"
@@ -203,10 +232,14 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   <div className="flex items-center gap-3 mb-6">
                     <div className="bg-gold/20 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
                       <Clock size={14} className="text-gold" />
-                      <span className="text-gold text-sm font-bold">{offer.duration} Days</span>
+                      <span className="text-gold text-sm font-bold">
+                        {offer.duration} Days
+                      </span>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                      <span className="text-white text-sm font-bold">{offer.experienceType}</span>
+                      <span className="text-white text-sm font-bold">
+                        {offer.experienceType}
+                      </span>
                     </div>
                   </div>
 
@@ -221,7 +254,10 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   )}
 
                   <div className="flex items-start gap-3 text-slate-300 mb-8">
-                    <MapPin size={20} className="text-gold flex-shrink-0 mt-1" />
+                    <MapPin
+                      size={20}
+                      className="text-gold flex-shrink-0 mt-1"
+                    />
                     <div>
                       <Link
                         href={`/hotel/${offer.hotel.slug || offer.hotel.id}`}
@@ -229,7 +265,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                       >
                         {offer.hotel.name}
                       </Link>
-                      <p className="text-sm text-slate-400">{offer.hotel.location}, {offer.hotel.country}</p>
+                      <p className="text-sm text-slate-400">
+                        {offer.hotel.location}, {offer.hotel.country}
+                      </p>
                     </div>
                   </div>
 
@@ -256,11 +294,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
             >
               <div className="flex items-center justify-center gap-2 mb-6">
                 <Sparkles className="text-gold" size={20} />
-                <span className="text-gold text-sm uppercase tracking-[0.3em]">The Essence</span>
+                <span className="text-gold text-sm uppercase tracking-[0.3em]">
+                  The Essence
+                </span>
               </div>
-              <p className="font-serif text-3xl text-white leading-relaxed">
-                {offer.description}
-              </p>
+              {parse(offer.description)}
             </motion.div>
           </div>
         </section>
@@ -268,7 +306,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
         {/* At A Glance - 3 Column Grid */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-deepBlue">
           <div className="max-w-7xl mx-auto">
-            <h2 className="font-serif text-4xl text-white text-center mb-16">At A Glance</h2>
+            <h2 className="font-serif text-4xl text-white text-center mb-16">
+              At A Glance
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Column 1: Your Base */}
@@ -284,7 +324,7 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   Your Base
                 </h3>
                 <Link
-                  href={`/hotel/${offer.hotel.slug || offer.hotel.id}`}
+                  href={`/hotel/${offer.hotel.slug}`}
                   className="group block"
                 >
                   <div className="relative h-48 mb-4 overflow-hidden rounded-sm">
@@ -297,7 +337,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   <h4 className="font-serif text-2xl text-white group-hover:text-gold transition-colors mb-2">
                     {offer.hotel.name}
                   </h4>
-                  <p className="text-slate-400 text-sm mb-3">{offer.hotel.category}</p>
+                  <p className="text-slate-400 text-sm mb-3">
+                    {offer.hotel.category}
+                  </p>
                   <div className="flex items-center gap-2 text-gold text-sm">
                     <Star className="fill-gold" size={14} />
                     <span className="font-bold">{offer.hotel.rating}</span>
@@ -325,15 +367,24 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="space-y-4">
                   {offer.activities.slice(0, 5).map((activity, index) => (
                     <div key={activity.id} className="flex items-start gap-3">
-                      <Check size={16} className="text-gold mt-1 flex-shrink-0" />
+                      <Check
+                        size={16}
+                        className="text-gold mt-1 flex-shrink-0"
+                      />
                       <div>
-                        <p className="text-white font-medium">{activity.name}</p>
-                        <p className="text-slate-400 text-xs">{activity.duration}</p>
+                        <p className="text-white font-medium">
+                          {activity.name}
+                        </p>
+                        <p className="text-slate-400 text-xs">
+                          {activity.duration}
+                        </p>
                       </div>
                     </div>
                   ))}
                   {offer.activities.length > 5 && (
-                    <p className="text-gold text-sm">+ {offer.activities.length - 5} more activities</p>
+                    <p className="text-gold text-sm">
+                      + {offer.activities.length - 5} more activities
+                    </p>
                   )}
                 </div>
               </motion.div>
@@ -353,7 +404,10 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="space-y-4">
                   {offer.hotel.amenities?.slice(0, 6).map((amenity, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <Check size={16} className="text-gold mt-1 flex-shrink-0" />
+                      <Check
+                        size={16}
+                        className="text-gold mt-1 flex-shrink-0"
+                      />
                       <p className="text-white">{amenity}</p>
                     </div>
                   ))}
@@ -366,7 +420,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
         {/* Visual Gallery - Masonry Grid */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-midnight">
           <div className="max-w-7xl mx-auto">
-            <h2 className="font-serif text-4xl text-white text-center mb-16">Visual Journey</h2>
+            <h2 className="font-serif text-4xl text-white text-center mb-16">
+              Visual Journey
+            </h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {offer.galleryImages.map((image, index) => (
@@ -377,14 +433,14 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                   className={`relative overflow-hidden rounded-sm ${
-                    index % 7 === 0 ? 'md:col-span-2 md:row-span-2' : ''
+                    index % 7 === 0 ? "md:col-span-2 md:row-span-2" : ""
                   }`}
                 >
                   <img
                     src={image}
                     alt={`${offer.title} gallery ${index + 1}`}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-700 grayscale hover:grayscale-0"
-                    style={{ minHeight: '200px' }}
+                    style={{ minHeight: "200px" }}
                   />
                 </motion.div>
               ))}
@@ -395,36 +451,57 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
         {/* Experience Breakdown - Accordion */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-deepBlue">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-4xl text-white text-center mb-16">Experience Breakdown</h2>
+            <h2 className="font-serif text-4xl text-white text-center mb-16">
+              Experience Breakdown
+            </h2>
 
             <div className="space-y-4">
               {/* Accommodation Details */}
               <div className="border border-white/10 rounded-sm overflow-hidden">
                 <button
-                  onClick={() => setExpandedSection(expandedSection === 'accommodation' ? null : 'accommodation')}
+                  onClick={() =>
+                    setExpandedSection(
+                      expandedSection === "accommodation"
+                        ? null
+                        : "accommodation"
+                    )
+                  }
                   className="w-full flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 transition-colors"
                 >
-                  <span className="font-serif text-xl text-white">Accommodation Details</span>
+                  <span className="font-serif text-xl text-white">
+                    Accommodation Details
+                  </span>
                   <ChevronDown
                     size={24}
                     className={`text-gold transition-transform ${
-                      expandedSection === 'accommodation' ? 'rotate-180' : ''
+                      expandedSection === "accommodation" ? "rotate-180" : ""
                     }`}
                   />
                 </button>
                 <AnimatePresence>
-                  {expandedSection === 'accommodation' && (
+                  {expandedSection === "accommodation" && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
+                      animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
                       <div className="p-6 text-slate-300 space-y-3">
-                        <p><strong className="text-white">Property:</strong> {offer.hotel.name}</p>
-                        <p><strong className="text-white">Category:</strong> {offer.hotel.category}</p>
-                        <p><strong className="text-white">Location:</strong> {offer.hotel.location}, {offer.hotel.country}</p>
-                        <p className="text-sm text-slate-400">{offer.hotel.description}</p>
+                        <p>
+                          <strong className="text-white">Property:</strong>{" "}
+                          {offer.hotel.name}
+                        </p>
+                        <p>
+                          <strong className="text-white">Category:</strong>{" "}
+                          {offer.hotel.category}
+                        </p>
+                        <p>
+                          <strong className="text-white">Location:</strong>{" "}
+                          {offer.hotel.city}, {offer.hotel.country}
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          {offer.hotel.description}
+                        </p>
                       </div>
                     </motion.div>
                   )}
@@ -432,44 +509,64 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
               </div>
 
               {/* Included Activities */}
-              {Object.entries(activityCategories || {}).map(([category, activities]) => (
-                <div key={category} className="border border-white/10 rounded-sm overflow-hidden">
-                  <button
-                    onClick={() => setExpandedSection(expandedSection === category ? null : category)}
-                    className="w-full flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 transition-colors"
+              {Object.entries(activityCategories || {}).map(
+                ([category, activities]) => (
+                  <div
+                    key={category}
+                    className="border border-white/10 rounded-sm overflow-hidden"
                   >
-                    <span className="font-serif text-xl text-white">{category} Experiences</span>
-                    <ChevronDown
-                      size={24}
-                      className={`text-gold transition-transform ${
-                        expandedSection === category ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-                  <AnimatePresence>
-                    {expandedSection === category && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-6 space-y-4">
-                          {activities.map((activity) => (
-                            <div key={activity.id} className="border-b border-white/5 pb-4 last:border-0">
-                              <div className="flex justify-between items-start mb-2">
-                                <h4 className="text-white font-medium">{activity.name}</h4>
-                                <span className="text-gold text-sm">{activity.duration}</span>
+                    <button
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === category ? null : category
+                        )
+                      }
+                      className="w-full flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <span className="font-serif text-xl text-white">
+                        {category} Experiences
+                      </span>
+                      <ChevronDown
+                        size={24}
+                        className={`text-gold transition-transform ${
+                          expandedSection === category ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    <AnimatePresence>
+                      {expandedSection === category && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-6 space-y-4">
+                            {activities.map((activity) => (
+                              <div
+                                key={activity.id}
+                                className="border-b border-white/5 pb-4 last:border-0"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h4 className="text-white font-medium">
+                                    {activity.name}
+                                  </h4>
+                                  <span className="text-gold text-sm">
+                                    {activity.duration}
+                                  </span>
+                                </div>
+                                <p className="text-slate-400 text-sm">
+                                  {activity.description}
+                                </p>
                               </div>
-                              <p className="text-slate-400 text-sm">{activity.description}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )
+              )}
             </div>
           </div>
         </section>
@@ -478,7 +575,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
         {offer.reviews && offer.reviews.length > 0 && (
           <section className="py-20 px-4 sm:px-6 lg:px-8 bg-midnight">
             <div className="max-w-4xl mx-auto">
-              <h2 className="font-serif text-4xl text-white text-center mb-16">Guest Stories</h2>
+              <h2 className="font-serif text-4xl text-white text-center mb-16">
+                Guest Stories
+              </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {offer.reviews.map((review) => (
@@ -491,12 +590,20 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   >
                     <div className="flex items-center gap-1 mb-3">
                       {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} size={14} className="text-gold fill-gold" />
+                        <Star
+                          key={i}
+                          size={14}
+                          className="text-gold fill-gold"
+                        />
                       ))}
                     </div>
-                    <p className="text-slate-300 mb-4 italic">"{review.comment}"</p>
+                    <p className="text-slate-300 mb-4 italic">
+                      "{review.comment}"
+                    </p>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-white font-medium">{review.user}</span>
+                      <span className="text-white font-medium">
+                        {review.user}
+                      </span>
                       <span className="text-slate-500">{review.date}</span>
                     </div>
                   </motion.div>
@@ -511,7 +618,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="hidden md:block">
               <p className="text-white font-serif text-lg">{offer.title}</p>
-              <p className="text-slate-400 text-sm">{offer.duration} days at {offer.hotel.name}</p>
+              <p className="text-slate-400 text-sm">
+                {offer.duration} days at {offer.hotel.name}
+              </p>
             </div>
             <button
               onClick={() => setIsContactModalOpen(true)}
@@ -541,8 +650,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
               className="bg-deepBlue border border-white/20 rounded-sm p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-serif text-3xl text-white">Reserve Your Experience</h3>
+                <h3 className="font-serif text-3xl text-white">
+                  Reserve Your Experience
+                </h3>
                 <button
+                  title="Close modal"
                   onClick={() => setIsContactModalOpen(false)}
                   className="text-slate-400 hover:text-white transition-colors"
                 >
@@ -555,9 +667,12 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Check className="text-gold" size={32} />
                   </div>
-                  <h4 className="font-serif text-2xl text-white mb-2">Thank You!</h4>
+                  <h4 className="font-serif text-2xl text-white mb-2">
+                    Thank You!
+                  </h4>
                   <p className="text-slate-400">
-                    We've received your inquiry and will be in touch within 24 hours.
+                    We've received your inquiry and will be in touch within 24
+                    hours.
                   </p>
                 </div>
               ) : (
@@ -573,8 +688,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-white text-sm mb-2">Name *</label>
+                      <label className="block text-white text-sm mb-2">
+                        Name *
+                      </label>
                       <input
+                        title="Name"
                         type="text"
                         name="name"
                         value={formData.name}
@@ -584,8 +702,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                       />
                     </div>
                     <div>
-                      <label className="block text-white text-sm mb-2">Email *</label>
+                      <label className="block text-white text-sm mb-2">
+                        Email *
+                      </label>
                       <input
+                        title="Email"
                         type="email"
                         name="email"
                         value={formData.email}
@@ -598,8 +719,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-white text-sm mb-2">Phone</label>
+                      <label className="block text-white text-sm mb-2">
+                        Phone
+                      </label>
                       <input
+                        title="Phone"
                         type="tel"
                         name="phone"
                         value={formData.phone}
@@ -608,7 +732,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                       />
                     </div>
                     <div>
-                      <label className="block text-white text-sm mb-2">Number of Guests</label>
+                      <label className="block text-white text-sm mb-2">
+                        Number of Guests
+                      </label>
                       <input
                         type="text"
                         name="guests"
@@ -621,7 +747,9 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   </div>
 
                   <div>
-                    <label className="block text-white text-sm mb-2">Preferred Travel Dates</label>
+                    <label className="block text-white text-sm mb-2">
+                      Preferred Travel Dates
+                    </label>
                     <input
                       type="text"
                       name="travelDates"
@@ -633,8 +761,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   </div>
 
                   <div>
-                    <label className="block text-white text-sm mb-2">Special Requests or Questions</label>
+                    <label className="block text-white text-sm mb-2">
+                      Special Requests or Questions
+                    </label>
                     <textarea
+                      title="Special Requests or Questions"
                       name="message"
                       value={formData.message}
                       onChange={handleFormChange}
@@ -644,8 +775,17 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   </div>
 
                   {formError && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-sm text-sm">
-                      {formError}
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-sm text-sm space-y-2">
+                      <p className="font-medium">{formError.message}</p>
+                      {formError.details && formError.details.length > 0 && (
+                        <ul className="space-y-1 pl-4">
+                          {formError.details.map((detail, idx) => (
+                            <li key={idx} className="text-xs list-disc">
+                              <span className="font-medium capitalize">{detail.field}:</span> {detail.message}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   )}
 
@@ -668,7 +808,8 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
                   </button>
 
                   <p className="text-slate-500 text-xs text-center">
-                    By submitting this form, you agree to be contacted by our team regarding your inquiry.
+                    By submitting this form, you agree to be contacted by our
+                    team regarding your inquiry.
                   </p>
                 </form>
               )}

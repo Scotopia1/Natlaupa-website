@@ -4,20 +4,44 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MapPin, ArrowRight, Building2 } from 'lucide-react';
-import { ALL_HOTELS, COUNTRIES } from '@/lib/constants';
+import { useHotels } from '@/hooks/useHotels';
 import Footer from '@/components/Footer';
 
 export default function CountriesPage() {
-  const countriesWithData = COUNTRIES.map(country => {
-    const hotels = ALL_HOTELS.filter(h => h.country === country);
-    const featuredImage = hotels[0]?.imageUrl || 'https://picsum.photos/600/400?random=50';
+  const { hotels, countries, isLoading, error } = useHotels();
+
+  const countriesWithData = countries.map(country => {
+    const countryHotels = hotels.filter(h => h.country === country);
+    const featuredImage = countryHotels[0]?.imageUrl || 'https://picsum.photos/600/400?random=50';
     return {
       name: country,
       slug: country.toLowerCase().replace(/\s+/g, '-'),
-      hotelCount: hotels.length,
+      hotelCount: countryHotels.length,
       imageUrl: featuredImage,
     };
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center">
+        <div className="text-white text-xl">Loading countries...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-deepBlue flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl font-serif mb-4 text-white">Error Loading Countries</h2>
+          <p className="text-slate-400 mb-8">{error}</p>
+          <Link href="/" className="text-gold hover:underline">
+            Return Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -34,7 +58,7 @@ export default function CountriesPage() {
                 Countries
               </h1>
               <p className="text-xl text-slate-300 font-light max-w-2xl mx-auto">
-                Discover extraordinary stays across {COUNTRIES.length} destinations worldwide.
+                Discover extraordinary stays across {countries.length} destinations worldwide.
               </p>
             </motion.div>
           </div>

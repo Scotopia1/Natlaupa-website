@@ -1,74 +1,26 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 export async function GET() {
   try {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-
-    // Get interaction counts for trend calculation
-    const [recentCount, previousCount] = await Promise.all([
-      prisma.userInteraction.count({
-        where: { createdAt: { gte: sevenDaysAgo } }
-      }),
-      prisma.userInteraction.count({
-        where: {
-          createdAt: {
-            gte: fourteenDaysAgo,
-            lt: sevenDaysAgo
-          }
-        }
-      })
-    ]);
-
-    // Calculate percentage change
-    const percentChange = previousCount > 0
-      ? Math.round(((recentCount - previousCount) / previousCount) * 100)
-      : 0;
-
-    // Get top country from recent hotel/offer views
-    const topInteractions = await prisma.userInteraction.groupBy({
-      by: ['entityId'],
-      where: {
-        entityType: 'hotel',
-        createdAt: { gte: sevenDaysAgo }
-      },
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-      take: 5
+    // Fetch from server API
+    const response = await fetch(`${API_URL}/analytics/insights`, {
+      headers: { 'Content-Type': 'application/json' },
+      next: { revalidate: 300 }, // Cache for 5 minutes
     });
 
-    // Fetch hotel details to get countries
-    let topCountry = 'Maldives'; // Default fallback
-    if (topInteractions.length > 0) {
-      const hotels = await prisma.hotel.findMany({
-        where: { id: { in: topInteractions.map(i => i.entityId) } },
-        select: { country: true }
-      });
-
-      if (hotels.length > 0) {
-        topCountry = hotels[0].country;
-      }
+    if (!response.ok) {
+      throw new Error('Failed to fetch insights from server');
     }
 
-    // Calculate average stay from recent inquiries
-    const inquiries = await prisma.hotelInquiry.findMany({
-      where: {
-        createdAt: { gte: sevenDaysAgo },
-        stayDuration: { not: null }
-      },
-      select: { stayDuration: true },
-      take: 50
-    });
+    const data = await response.json();
 
-    const avgStay = inquiries.length > 0
-      ? Math.round(inquiries.reduce((sum, i) => sum + (i.stayDuration || 5), 0) / inquiries.length)
-      : 5;
-
-    return NextResponse.json({
-      searchTrend: `${percentChange >= 0 ? '+' : ''}${percentChange}%`,
-      topSearch: topCountry,
-      avgStay: `${avgStay} nights`
+    // Return the insights data from server
+    return NextResponse.json(data.data || {
+      searchTrend: '+0%',
+      topSearch: 'Maldives',
+      avgStay: '5 nights'
     });
   } catch (error) {
     console.error('Error fetching insights:', error);

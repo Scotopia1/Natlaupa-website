@@ -10,6 +10,7 @@ export interface Hotel {
   id: string;
   name: string;
   slug?: string;
+  city: string;
   location: string;
   country: string;
   rating: number;
@@ -78,4 +79,37 @@ export interface Offer {
   reviews?: OfferReview[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface BlogTag {
+  id: string;
+  name: string;
+  blogId: string;
+  createdAt: Date;
+}
+
+export interface BlogAuthor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+}
+
+export interface Blog {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  coverImage?: string;
+  authorId: string;
+  author: BlogAuthor;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  publishedAt?: Date;
+  metaTitle?: string;
+  metaDescription?: string;
+  viewCount: number;
+  tags: BlogTag[];
+  createdAt: Date;
+  updatedAt: Date;
 }

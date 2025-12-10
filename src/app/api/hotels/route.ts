@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
       params.append(key, value);
     });
 
-    const response = await fetch(`${API_URL}/hotels?${params.toString()}`, {
+    // Use search endpoint for public access
+    const response = await fetch(`${API_URL}/hotels/search?${params.toString()}`, {
       headers: { 'Content-Type': 'application/json' },
       next: { revalidate: 60 }, // Cache for 60 seconds
     });

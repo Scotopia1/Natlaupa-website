@@ -64,9 +64,9 @@ export default function BecomeAngel() {
     lastName: '',
     email: '',
     phone: '',
-    currentPosition: '',
-    yearsInHospitality: '',
-    motivation: '',
+    location: '',
+    experience: '',
+    reason: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -80,7 +80,7 @@ export default function BecomeAngel() {
     setFormError(null);
 
     try {
-      const response = await fetch('/api/angel', {
+      const response = await fetch('http://localhost:5000/api/v1/angel-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -97,9 +97,9 @@ export default function BecomeAngel() {
         lastName: '',
         email: '',
         phone: '',
-        currentPosition: '',
-        yearsInHospitality: '',
-        motivation: '',
+        location: '',
+        experience: '',
+        reason: '',
       });
 
       setTimeout(() => {
@@ -480,43 +480,38 @@ export default function BecomeAngel() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Current Position / Company</label>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Location (Optional)</label>
                       <input
                         type="text"
-                        name="currentPosition"
-                        value={formData.currentPosition}
+                        name="location"
+                        value={formData.location}
                         onChange={handleChange}
-                        required
                         className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
-                        placeholder="Concierge at The Ritz"
+                        placeholder="New York, NY"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Years in Hospitality</label>
-                      <select
-                        name="yearsInHospitality"
-                        value={formData.yearsInHospitality}
-                        onChange={handleChange}
-                        required
-                        className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors cursor-pointer"
-                      >
-                        <option value="">Select experience level</option>
-                        <option value="1-2">1-2 years</option>
-                        <option value="3-5">3-5 years</option>
-                        <option value="5-10">5-10 years</option>
-                        <option value="10+">10+ years</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Why do you want to become an Angel?</label>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Hospitality Experience (Optional)</label>
                       <textarea
-                        name="motivation"
-                        value={formData.motivation}
+                        name="experience"
+                        value={formData.experience}
                         onChange={handleChange}
                         rows={3}
-                        required
                         className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
-                        placeholder="Tell us about your passion for hospitality and how you can contribute to our community..."
+                        placeholder="Describe your professional background in hospitality (e.g., Concierge at The Ritz for 5 years)..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-gold mb-2">Why do you want to become an Angel? (Min 50 characters)</label>
+                      <textarea
+                        name="reason"
+                        value={formData.reason}
+                        onChange={handleChange}
+                        rows={4}
+                        required
+                        minLength={50}
+                        className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-gold focus:outline-none transition-colors"
+                        placeholder="Tell us about your passion for hospitality and how you can contribute to our community (minimum 50 characters)..."
                       />
                     </div>
 

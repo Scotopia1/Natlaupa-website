@@ -8,6 +8,7 @@ import { ArrowLeft, Star, MapPin, ShieldCheck, Wifi, Coffee, Globe, ChevronLeft,
 import Footer from '@/components/Footer';
 import type { Hotel } from '@/lib/types';
 import { isCuid } from '@/lib/slugify';
+import { getHotelById, submitHotelInquiry } from '@/lib/api-client';
 
 export default function OfferDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
@@ -30,15 +31,13 @@ export default function OfferDetails({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     const fetchHotel = async () => {
       try {
-        const response = await fetch(`/api/hotels/${id}`);
-        if (!response.ok) throw new Error('Hotel not found');
-        const data = await response.json();
-        setHotel(data.hotel);
+        const hotelData = await getHotelById(id);
+        setHotel(hotelData);
 
         // Redirect ID-based URLs to slug-based URLs (SEO best practice)
         const isId = isCuid(id);
-        if (isId && data.hotel.slug) {
-          router.replace(`/hotel/${data.hotel.slug}`);
+        if (isId && hotelData.slug) {
+          router.replace(`/hotel/${hotelData.slug}`);
         }
       } catch (error) {
         console.error('Error fetching hotel:', error);
@@ -96,23 +95,14 @@ export default function OfferDetails({ params }: { params: Promise<{ id: string 
     setFormError(null);
 
     try {
-      const response = await fetch('/api/inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hotelId: hotel.id,
-          hotelName: hotel.name,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || undefined,
-          message: formData.message,
-        }),
+      await submitHotelInquiry({
+        hotelId: hotel.id,
+        hotelName: hotel.name,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        message: formData.message,
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to submit inquiry');
-      }
 
       setFormSubmitted(true);
       setFormData({ name: '', email: '', phone: '', message: '' });
@@ -150,7 +140,7 @@ export default function OfferDetails({ params }: { params: Promise<{ id: string 
 
   const avgRating = hotel.reviews && hotel.reviews.length > 0
     ? (hotel.reviews.reduce((sum, r) => sum + r.rating, 0) / hotel.reviews.length).toFixed(1)
-    : hotel.rating.toFixed(1);
+    : (hotel.rating ?? 0).toFixed(1);
 
   return (
     <div className="bg-deepBlue min-h-screen text-slate-100">

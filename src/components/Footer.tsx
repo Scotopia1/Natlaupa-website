@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Instagram, Twitter, Facebook, ArrowRight, Check, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { FOOTER_LINKS } from '@/lib/constants';
+import React, { useState } from "react";
+import Link from "next/link";
+import {
+  Instagram,
+  Twitter,
+  Facebook,
+  ArrowRight,
+  Check,
+  Loader2,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { FOOTER_LINKS } from "@/lib/constants";
 
 const Footer: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,27 +25,27 @@ const Footer: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
 
       if (!response.ok && !data.success) {
-        throw new Error(data.error || 'Failed to subscribe');
+        throw new Error(data.error || "Failed to subscribe");
       }
 
       setIsSubscribed(true);
-      setEmail('');
+      setEmail("");
 
       // Reset success state after 5 seconds
       setTimeout(() => {
         setIsSubscribed(false);
       }, 5000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,9 +82,9 @@ const Footer: React.FC = () => {
               className="flex items-center gap-6"
             >
               {[
-                { icon: Instagram, href: '#', label: 'Instagram' },
-                { icon: Twitter, href: '#', label: 'Twitter' },
-                { icon: Facebook, href: '#', label: 'Facebook' },
+                { icon: Instagram, href: "#", label: "Instagram" },
+                { icon: Twitter, href: "#", label: "Twitter" },
+                { icon: Facebook, href: "#", label: "Facebook" },
               ].map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
@@ -104,7 +111,9 @@ const Footer: React.FC = () => {
               viewport={{ once: true }}
               className="text-center md:text-left"
             >
-              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">Explore</h4>
+              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">
+                Explore
+              </h4>
               <nav className="flex flex-col gap-2">
                 {FOOTER_LINKS.explore.map((link) => (
                   <Link
@@ -126,7 +135,9 @@ const Footer: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="text-center md:text-left"
             >
-              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">Company</h4>
+              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">
+                Company
+              </h4>
               <nav className="flex flex-col gap-2">
                 {FOOTER_LINKS.company.map((link) => (
                   <Link
@@ -148,7 +159,9 @@ const Footer: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="text-center md:text-left"
             >
-              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">Programs</h4>
+              <h4 className="text-gold text-xs uppercase tracking-[0.2em] mb-4">
+                Programs
+              </h4>
               <nav className="flex flex-col gap-2">
                 {FOOTER_LINKS.programs.map((link) => (
                   <Link
@@ -180,7 +193,9 @@ const Footer: React.FC = () => {
             {isSubscribed ? (
               <div className="flex items-center justify-center gap-2 py-4 text-gold">
                 <Check size={20} strokeWidth={1.5} />
-                <span className="text-sm tracking-wide">Thank you for subscribing!</span>
+                <span className="text-sm tracking-wide">
+                  Thank you for subscribing!
+                </span>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="relative">
@@ -200,14 +215,20 @@ const Footer: React.FC = () => {
                     className="px-4 text-gold hover:text-white transition-colors duration-300 disabled:opacity-50"
                   >
                     {isSubmitting ? (
-                      <Loader2 size={20} strokeWidth={1.5} className="animate-spin" />
+                      <Loader2
+                        size={20}
+                        strokeWidth={1.5}
+                        className="animate-spin"
+                      />
                     ) : (
                       <ArrowRight size={20} strokeWidth={1.5} />
                     )}
                   </button>
                 </div>
                 {error && (
-                  <p className="text-red-400 text-xs mt-2 text-center">{error}</p>
+                  <p className="text-red-400 text-xs mt-2 text-center">
+                    {error}
+                  </p>
                 )}
               </form>
             )}
