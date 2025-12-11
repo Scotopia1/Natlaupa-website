@@ -2,25 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Gift, Star, Users, Crown, ArrowRight, Shield, Lock, CheckCircle, X, ShieldCheck, Loader2 } from 'lucide-react';
+import { Sparkles, Gift, Star, Users, Crown, ArrowRight, Shield, Lock, CheckCircle, X, ShieldCheck, Loader2, Download, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 const perks = [
   {
-    icon: Gift,
-    title: 'Exclusive Rewards',
-    description: 'Earn generous commissions and exclusive travel credits for every successful referral you make.'
+    icon: Users,
+    title: 'Partnership',
+    description: 'Forge strategic alliances in IT, revenue management, and digital transformation to drive innovation.'
   },
   {
     icon: Star,
-    title: 'VIP Access',
-    description: 'Get early access to new properties, special rates, and members-only experiences before anyone else.'
+    title: 'Growth',
+    description: 'Access exclusive tools and insights to elevate properties into icons and maximize your influence.'
   },
   {
     icon: Crown,
-    title: 'Elite Status',
-    description: 'Join an exclusive community of travel connoisseurs and hospitality enthusiasts worldwide.'
+    title: 'Legacy',
+    description: 'Collaborate with elite minds like Dr. Serge Chamellan to shape enduring impact in luxury hospitality.'
   }
 ];
 
@@ -39,10 +39,9 @@ const membershipDetails = [
 ];
 
 const steps = [
-  { number: '01', title: 'Apply', description: 'Submit your application with your hospitality credentials' },
-  { number: '02', title: 'Verification', description: 'Our team verifies your professional background' },
-  { number: '03', title: 'Activate', description: 'Complete your membership fee to activate your account' },
-  { number: '04', title: 'Connect', description: 'Join the community and start earning rewards' }
+  { number: '01', title: 'Connect', description: 'Join our active WhatsApp communities—share insights, discover leads, and network' },
+  { number: '02', title: 'Collaborate', description: 'Present solutions, refine ideas, and co-create strategies with fellow pioneers' },
+  { number: '03', title: 'Elevate', description: 'Leverage Natlaupa\'s reach, intelligence, and partnerships to maximize influence' }
 ];
 
 const benefits = [
@@ -59,6 +58,7 @@ export default function BecomeAngel() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showStickyButton, setShowStickyButton] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -113,6 +113,71 @@ export default function BecomeAngel() {
     }
   };
 
+  const handleWhatsAppSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      // First submit to backend
+      const response = await fetch('http://localhost:5000/api/v1/angel-applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to submit application');
+      }
+
+      // Format WhatsApp message
+      const message = `✨ *NATLAUPA ANGEL APPLICATION*
+
+*Name:* ${formData.firstName} ${formData.lastName}
+*Email:* ${formData.email}
+*Phone:* ${formData.phone}
+*Location:* ${formData.location || "Not provided"}
+
+*Hospitality Experience:*
+${formData.experience || "Not provided"}
+
+*Why I want to become an Angel:*
+${formData.reason}
+
+---
+Submitted via Natlaupa Website`;
+
+      // Redirect to WhatsApp
+      const whatsappNumber = "33775743875"; // +33 7 75 74 38 75
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+      window.open(whatsappUrl, "_blank");
+
+      // Reset form and close modal
+      setFormSubmitted(true);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        location: '',
+        experience: '',
+        reason: '',
+      });
+
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setFormSubmitted(false);
+      }, 2000);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Lock scroll when modal is open
   useEffect(() => {
     if (isModalOpen) {
@@ -137,6 +202,15 @@ export default function BecomeAngel() {
     };
   }, [isModalOpen]);
 
+  // Show sticky button after scrolling past hero
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyButton(window.scrollY > 600);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <>
       <main className="bg-deepBlue min-h-screen">
@@ -158,30 +232,48 @@ export default function BecomeAngel() {
               transition={{ delay: 0.1 }}
               className="font-serif text-5xl md:text-6xl lg:text-7xl text-white mb-8"
             >
-              Join Natlaupa's Elite Angel Program
+              Welcome to the Inner Circle
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-xl text-slate-300 font-light leading-relaxed mb-12 max-w-2xl mx-auto"
+              className="text-xl text-slate-300 font-light leading-relaxed mb-6 max-w-2xl mx-auto"
             >
-              Step into a world where your expertise fuels luxury travel—and your performance is richly rewarded. <strong className="text-white">Connect. Collaborate. Earn.</strong> As a Natlaupa Angel, you become an integral part of our global network. Drive high-impact partnerships, share bespoke experiences with discerning clients, and unlock a revenue stream that grows with every referral.
+              A World Where Visionaries Thrive.
+            </motion.p>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+              className="text-lg text-slate-400 font-light leading-relaxed mb-12 max-w-2xl mx-auto"
+            >
+              You've entered a curated ecosystem of innovators, strategists, and luxury curators redefining the future of hospitality. Step into a world where your expertise fuels luxury travel and your performance is richly rewarded.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-3 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors"
+                className="inline-flex items-center justify-center gap-3 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors"
               >
                 Apply Now
                 <ArrowRight size={18} />
               </button>
+              <a
+                href="/brochure-angel.pdf"
+                download
+                className="inline-flex items-center justify-center gap-3 bg-transparent border-2 border-gold text-gold px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-gold hover:text-deepBlue transition-colors"
+              >
+                <Download size={18} />
+                Download Brochure
+              </a>
             </motion.div>
           </div>
         </section>
@@ -195,7 +287,7 @@ export default function BecomeAngel() {
               viewport={{ once: true }}
               className="font-serif text-3xl md:text-4xl text-white text-center mb-16"
             >
-              Angel Benefits
+              Your Gateway to Luxury's Future
             </motion.h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -289,10 +381,10 @@ export default function BecomeAngel() {
               viewport={{ once: true }}
               className="font-serif text-3xl md:text-4xl text-white text-center mb-16"
             >
-              How It Works
+              Your Journey Starts Now
             </motion.h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {steps.map((step, index) => (
                 <motion.div
                   key={step.number}
@@ -328,19 +420,27 @@ export default function BecomeAngel() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="font-serif text-3xl md:text-4xl text-white mb-6"
+              className="font-serif text-3xl md:text-5xl text-white mb-6"
             >
-              Join the Community
+              Innovation isn't a destination, it's a movement.
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              className="text-gold text-2xl font-serif mb-8"
+            >
+              Will you lead it?
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
               className="text-slate-400 mb-4"
             >
-              Connect with fellow Angels, share travel stories, and be part of an exclusive network
-              that shapes the future of luxury travel.
+              Engage now in your dedicated channels and take the first step.
             </motion.p>
             <motion.p
               initial={{ opacity: 0 }}
@@ -521,25 +621,59 @@ export default function BecomeAngel() {
                       </p>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-gold text-deepBlue font-bold uppercase tracking-widest py-4 hover:bg-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="animate-spin" size={18} />
-                          Submitting...
-                        </>
-                      ) : (
-                        'Submit Application'
-                      )}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="animate-spin" size={18} />
+                            Submitting...
+                          </>
+                        ) : (
+                          'Submit Application'
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppSubmit}
+                        disabled={isSubmitting}
+                        className="w-14 h-14 flex-shrink-0 bg-transparent border-2 border-[#25D366] text-[#25D366] rounded-full hover:bg-[#25D366] hover:text-white hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        title="Send via WhatsApp"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="animate-spin" size={20} />
+                        ) : (
+                          <MessageCircle size={24} />
+                        )}
+                      </button>
+                    </div>
                   </form>
                 </>
               )}
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Sticky Download Button */}
+      <AnimatePresence>
+        {showStickyButton && (
+          <motion.a
+            href="/brochure-angel.pdf"
+            download
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="fixed bottom-8 right-8 z-40 bg-gold text-deepBlue p-4 rounded-full shadow-2xl hover:bg-white transition-colors group"
+            title="Download Brochure"
+          >
+            <Download size={24} className="group-hover:animate-bounce" />
+          </motion.a>
         )}
       </AnimatePresence>
 

@@ -17,6 +17,7 @@ import {
   ExternalLink,
   Sparkles,
   Check,
+  MessageCircle,
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import { useOffer } from "@/hooks/useOffers";
@@ -146,6 +147,92 @@ export default function OfferDetailPage({
         setIsContactModalOpen(false);
         setFormSubmitted(false);
       }, 3000);
+    } catch (err) {
+      setFormError({
+        code: "APP",
+        message: err instanceof Error ? err.message : "Something went wrong",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleWhatsAppSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offer) return;
+
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      // First submit to backend
+      const response = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          offerId: offer.id,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          message: formData.message,
+          travelDates: formData.travelDates || undefined,
+          guests: formData.guests || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        if (data.error) {
+          setFormError(data.error);
+        } else {
+          setFormError({
+            code: "APP",
+            message: data.message || "Failed to submit inquiry",
+          });
+        }
+        return;
+      }
+
+      // Format WhatsApp message
+      const message = `🏨 *HOTEL INQUIRY - ${offer.hotel.name}*
+
+*Guest Name:* ${formData.name}
+*Email:* ${formData.email}
+*Phone:* ${formData.phone || "Not provided"}
+*Travel Dates:* ${formData.travelDates || "Not specified"}
+*Number of Guests:* ${formData.guests || "Not specified"}
+
+*Offer:* ${offer.title}
+*Hotel:* ${offer.hotel.name} - ${offer.hotel.location}
+
+*Message:*
+${formData.message}
+
+---
+Submitted via Natlaupa Website`;
+
+      // Redirect to WhatsApp
+      const whatsappNumber = "33775743875"; // +33 7 75 74 38 75
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+      window.open(whatsappUrl, "_blank");
+
+      // Reset form and close modal
+      setFormSubmitted(true);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        travelDates: "",
+        guests: "",
+      });
+
+      setTimeout(() => {
+        setIsContactModalOpen(false);
+        setFormSubmitted(false);
+      }, 2000);
     } catch (err) {
       setFormError({
         code: "APP",
@@ -789,23 +876,38 @@ export default function OfferDetailPage({
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="animate-spin" size={18} />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        Submit Inquiry
-                        <Send size={18} />
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="animate-spin" size={18} />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Submit Inquiry
+                          <Send size={18} />
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleWhatsAppSubmit}
+                      disabled={isSubmitting}
+                      className="w-14 h-14 flex-shrink-0 bg-transparent border-2 border-[#25D366] text-[#25D366] rounded-full hover:bg-[#25D366] hover:text-white hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      title="Send via WhatsApp"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        <MessageCircle size={24} />
+                      )}
+                    </button>
+                  </div>
 
                   <p className="text-slate-500 text-xs text-center">
                     By submitting this form, you agree to be contacted by our

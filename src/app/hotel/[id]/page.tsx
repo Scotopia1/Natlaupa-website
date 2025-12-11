@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Star, MapPin, ShieldCheck, Wifi, Coffee, Globe, ChevronLeft, ChevronRight, MessageSquare, Send, X, ExternalLink, Navigation, Loader2 } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, ShieldCheck, Wifi, Coffee, Globe, ChevronLeft, ChevronRight, MessageSquare, Send, X, ExternalLink, Navigation, Loader2, MessageCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
 import type { Hotel } from '@/lib/types';
 import { isCuid } from '@/lib/slugify';
@@ -111,6 +111,62 @@ export default function OfferDetails({ params }: { params: Promise<{ id: string 
         setIsContactModalOpen(false);
         setFormSubmitted(false);
       }, 3000);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleWhatsAppSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hotel) return;
+
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      // First submit to backend
+      await submitHotelInquiry({
+        hotelId: hotel.id,
+        hotelName: hotel.name,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        message: formData.message,
+      });
+
+      // Format WhatsApp message
+      const message = `🏨 *HOTEL INQUIRY - ${hotel.name}*
+
+*Guest Name:* ${formData.name}
+*Email:* ${formData.email}
+*Phone:* ${formData.phone || "Not provided"}
+
+*Hotel:* ${hotel.name}
+*Location:* ${hotel.location}, ${hotel.country}
+
+*Message:*
+${formData.message}
+
+---
+Submitted via Natlaupa Website`;
+
+      // Redirect to WhatsApp
+      const whatsappNumber = "33775743875"; // +33 7 75 74 38 75
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+      window.open(whatsappUrl, "_blank");
+
+      // Reset form and close modal
+      setFormSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', message: '' });
+
+      setTimeout(() => {
+        setIsContactModalOpen(false);
+        setFormSubmitted(false);
+      }, 2000);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -566,20 +622,35 @@ export default function OfferDetails({ params }: { params: Promise<{ id: string 
                         placeholder="Tell us about your travel dates, preferences, and any special requests..."
                       />
                     </div>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-gold text-deepBlue font-bold uppercase tracking-widest py-4 hover:bg-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="animate-spin" size={18} />
-                          Sending...
-                        </>
-                      ) : (
-                        'Send Inquiry'
-                      )}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="animate-spin" size={18} />
+                            Sending...
+                          </>
+                        ) : (
+                          'Send Inquiry'
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppSubmit}
+                        disabled={isSubmitting}
+                        className="w-14 h-14 flex-shrink-0 bg-transparent border-2 border-[#25D366] text-[#25D366] rounded-full hover:bg-[#25D366] hover:text-white hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        title="Send via WhatsApp"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="animate-spin" size={20} />
+                        ) : (
+                          <MessageCircle size={24} />
+                        )}
+                      </button>
+                    </div>
                   </form>
                 </>
               )}
