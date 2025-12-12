@@ -14,6 +14,8 @@ import { motion } from "framer-motion";
 import { FOOTER_LINKS } from "@/lib/constants";
 
 const Footer: React.FC = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -28,7 +30,11 @@ const Footer: React.FC = () => {
       const response = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
+        }),
       });
 
       const data = await response.json();
@@ -39,6 +45,8 @@ const Footer: React.FC = () => {
 
       setIsSubscribed(true);
       setEmail("");
+      setFirstName("");
+      setLastName("");
 
       // Reset success state after 5 seconds
       setTimeout(() => {
@@ -198,7 +206,29 @@ const Footer: React.FC = () => {
                 </span>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="relative">
+              <form onSubmit={handleSubmit} className="relative space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="border-b border-slate-700 focus-within:border-gold transition-colors duration-300">
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First Name"
+                      disabled={isSubmitting}
+                      className="w-full bg-transparent py-4 text-white text-center text-sm tracking-wide focus:outline-none placeholder:text-slate-600 disabled:opacity-50"
+                    />
+                  </div>
+                  <div className="border-b border-slate-700 focus-within:border-gold transition-colors duration-300">
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last Name"
+                      disabled={isSubmitting}
+                      className="w-full bg-transparent py-4 text-white text-center text-sm tracking-wide focus:outline-none placeholder:text-slate-600 disabled:opacity-50"
+                    />
+                  </div>
+                </div>
                 <div className="flex border-b border-slate-700 focus-within:border-gold transition-colors duration-300">
                   <input
                     type="email"
