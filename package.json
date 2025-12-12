@@ -4,17 +4,13 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "next dev --port 3001",
-    "build": "prisma generate && next build --webpack",
-    "postinstall": "prisma generate",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "db:seed": "npx tsx prisma/seed.ts",
     "audit:visual": "npx tsx visual-audit/audit.ts"
   },
-  "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
-  },
   "dependencies": {
+    "@anthropic-ai/claude-code": "^2.0.65",
     "@google/genai": "^1.30.0",
     "@prisma/client": "^6.19.0",
     "framer-motion": "^12.23.24",
@@ -24,6 +20,7 @@
     "lucide-react": "^0.554.0",
     "mapbox-gl": "^3.16.0",
     "next": "^16.0.5",
+    "puppeteer": "^24.33.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1"
   },

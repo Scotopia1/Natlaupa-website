@@ -40,6 +40,7 @@ function transformServerOffer(serverOffer: Record<string, unknown>): Offer {
       id: hotel?.id as string,
       name: hotel?.name as string,
       slug: hotel?.slug as string,
+      city: hotel?.city as string || '',
       location: hotel?.city as string || hotel?.location as string || '',
       country: hotel?.country as string || '',
       rating: hotel?.starRating as number || hotel?.rating as number || 5.0,
@@ -92,7 +93,7 @@ export function useOffers(filters?: OffersFilter): UseOffersResult {
         setTotal(data.count || transformedOffers.length);
 
         // Extract unique experience types
-        const types = [...new Set(transformedOffers.map(offer => offer.experienceType))];
+        const types = [...new Set(transformedOffers.map((offer: any) => offer.experienceType))] as string[];
         setExperienceTypes(types);
       } else {
         setOffers([]);

@@ -85,7 +85,7 @@ export async function OPTIONS() {
 
     return NextResponse.json({
       success: true,
-      moods: moods.map(mood => ({
+      moods: moods.map((mood: any) => ({
         id: mood.id,
         name: mood.name,
         label: mood.label,

@@ -13,6 +13,7 @@ import {
   Sparkles,
   Moon,
   ChevronDown,
+  ChevronUp,
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
@@ -335,9 +336,9 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
           {/* Content Layer */}
           <div className="relative z-10 flex flex-col md:flex-row w-full h-full px-4">
             {/* CHOICE 1: DESTINATION */}
-            <div className="flex-1 flex justify-center items-center py-8 md:py-0">
+            <div className="flex-1 flex justify-center items-center py-6 md:py-0">
               <motion.div
-                className="group relative cursor-pointer flex flex-col items-center"
+                className="group relative cursor-pointer flex flex-col items-center w-full max-w-lg"
                 onMouseEnter={() =>
                   !isTouchDevice && setHoveredChoice("destination")
                 }
@@ -354,7 +355,7 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
               >
                 {/* Flickering arrow indicator */}
                 <motion.div
-                  className="absolute -top-6 sm:-top-8 md:-top-10 lg:-top-12 left-1/2 -translate-x-1/2 flex flex-col items-center"
+                  className="absolute -top-6 sm:-top-8 md:-top-10 lg:-top-12 flex flex-col items-center w-full"
                   animate={{
                     y: [0, 6, 0],
                     opacity: [0.4, 1, 0.4],
@@ -365,7 +366,7 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
                     ease: "easeInOut",
                   }}
                 >
-                  <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                  <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold mx-auto" />
                 </motion.div>
                 {/* Pulse ring effect */}
                 <AnimatePresence>
@@ -423,9 +424,9 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
             <div className="block md:hidden w-[90%] h-[1px] bg-white/20 self-center" />
 
             {/* CHOICE 2: STYLE */}
-            <div className="flex-1 flex justify-center items-center py-8 md:py-0">
+            <div className="flex-1 flex justify-center items-center py-6 md:py-0">
               <motion.div
-                className="group relative cursor-pointer flex flex-col items-center"
+                className="group relative cursor-pointer flex flex-col items-center w-full max-w-lg"
                 onMouseEnter={() =>
                   !isTouchDevice && setHoveredChoice("category")
                 }
@@ -440,22 +441,6 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
                 }
                 transition={{ duration: 0.6 }}
               >
-                {/* Flickering arrow indicator */}
-                <motion.div
-                  className="absolute -top-6 sm:-top-8 md:-top-10 lg:-top-12 left-1/2 -translate-x-1/2 flex flex-col items-center"
-                  animate={{
-                    y: [0, 6, 0],
-                    opacity: [0.4, 1, 0.4],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 0.3,
-                  }}
-                >
-                  <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
-                </motion.div>
                 {/* Pulse ring effect */}
                 <AnimatePresence>
                   {clickedButton === "category" && (
@@ -500,6 +485,22 @@ const ExperienceSelector: React.FC<ExperienceSelectorProps> = ({
                 >
                   How
                 </motion.p>
+                {/* Flickering arrow indicator - below text */}
+                <motion.div
+                  className="absolute -bottom-6 sm:-bottom-8 md:-bottom-10 lg:-bottom-12 flex flex-col items-center w-full"
+                  animate={{
+                    y: [0, -6, 0],
+                    opacity: [0.4, 1, 0.4],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.3,
+                  }}
+                >
+                  <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-gold mx-auto" />
+                </motion.div>
               </motion.div>
             </div>
           </div>

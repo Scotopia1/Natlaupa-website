@@ -13,6 +13,8 @@ import {
   X,
   ShieldCheck,
   Loader2,
+  Download,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
@@ -20,41 +22,41 @@ import Footer from "@/components/Footer";
 const keyBenefits = [
   {
     number: "01",
-    icon: Bell,
-    title: "Regular Deal Alerts",
+    icon: DollarSign,
+    title: "Revenue Optimization",
     description:
-      "Receive instant notifications for room offers, flash sales and exclusive packages, empower your clients with the best available experiences and respond with agility to market shifts.",
+      "Unlock your hotel's full potential with cutting-edge revenue management strategies. Our expert team leverages advanced analytics to maximize profitability and strengthen your overall performance in the luxury market.",
   },
   {
     number: "02",
-    icon: Tag,
-    title: "Negotiated Rates & Perks",
+    icon: Briefcase,
+    title: "Complete Distribution Strategy",
     description:
-      "Leverage below-market pricing and complimentary add-ons to craft irresistibly upscale stays that reinforce your reputation for excellence and delight every guest.",
+      "Access an all-in-one solution covering distribution, website development, online booking engines, and operational consulting. Streamline your processes and boost your online presence with industry-leading expertise.",
   },
   {
     number: "03",
-    icon: DollarSign,
-    title: "High-Yield Commissions",
+    icon: Bell,
+    title: "24/7 Expert Support",
     description:
-      "Capture commissions on every booking, turning your sales efforts into a lucrative revenue stream while maintaining premium service standards.",
+      "Benefit from round-the-clock access to talented tourism-industry professionals across 3 continents. Our dedicated team manages a portfolio of over 60 hotels with proven results and unwavering commitment to your success.",
   },
   {
     number: "04",
-    icon: Briefcase,
-    title: "Sales Toolkit",
+    icon: Tag,
+    title: "Risk-Free Partnership",
     description:
-      "Access ready-to-use marketing assets, email templates and pitch decks—streamline your outreach, maintain brand consistency and close deals with confidence.",
+      "Start with confidence through our 6-month trial period with best price guarantee and contract cancellation without penalty. Experience the Natlaupa difference with zero risk and maximum flexibility.",
   },
 ];
 
 const additionalFeatures = [
-  "Dedicated partnership manager",
-  "Priority support channel",
-  "Real-time inventory access",
-  "Co-branded marketing materials",
-  "Performance analytics dashboard",
-  "Training and onboarding support",
+  "Operational audit & consulting",
+  "Owner representation services",
+  "Digital identity creation & brand redesign",
+  "Social media management & SEO/SEM",
+  "Performance analytics & reporting",
+  "Global network across 10 countries",
 ];
 
 interface ValidationError {
@@ -73,6 +75,9 @@ export default function ForHotels() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<ErrorResponse | null>(null);
+  const [showStickyButton, setShowStickyButton] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [showLanguageButtons, setShowLanguageButtons] = useState(false);
   const [formData, setFormData] = useState({
     contactName: "",
     hotelName: "",
@@ -140,6 +145,80 @@ export default function ForHotels() {
     }
   };
 
+  const handleWhatsAppSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      // First submit to backend
+      const response = await fetch(
+        "http://localhost:5000/api/v1/partnership-applications",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        if (data.error) {
+          setFormError(data.error);
+        } else {
+          setFormError({
+            code: "APP",
+            message: "Failed to submit application",
+          });
+        }
+        return;
+      }
+
+      // Format WhatsApp message
+      const message = `🏨 *HOTEL PARTNERSHIP APPLICATION*
+
+*Contact Name:* ${formData.contactName}
+*Hotel/Company:* ${formData.hotelName}
+*Email:* ${formData.email}
+*Phone:* ${formData.phone || "Not provided"}
+
+*Message:*
+${formData.message}
+
+---
+Submitted via Natlaupa Website`;
+
+      // Redirect to WhatsApp
+      const whatsappNumber = "33775743875"; // +33 7 75 74 38 75
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+      window.open(whatsappUrl, "_blank");
+
+      // Reset form and close modal
+      setFormSubmitted(true);
+      setFormData({
+        contactName: "",
+        hotelName: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setFormSubmitted(false);
+      }, 2000);
+    } catch (err) {
+      setFormError({
+        code: "APP",
+        message: err instanceof Error ? err.message : "Something went wrong",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Lock scroll when modal is open
   useEffect(() => {
     if (isModalOpen) {
@@ -163,6 +242,15 @@ export default function ForHotels() {
       }
     };
   }, [isModalOpen]);
+
+  // Show sticky button after scrolling past hero
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyButton(window.scrollY > 600);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
@@ -203,14 +291,69 @@ export default function ForHotels() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-3 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors"
+                className="inline-flex items-center justify-center gap-3 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors"
               >
                 Apply for Partnership
                 <ArrowRight size={18} />
               </button>
+
+              {/* Animated Split Download Button */}
+              <AnimatePresence mode="wait">
+                {!showLanguageButtons ? (
+                  <motion.button
+                    key="download-main"
+                    onClick={() => setShowLanguageButtons(true)}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="inline-flex items-center justify-center gap-3 bg-transparent border-2 border-gold text-gold px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-gold hover:text-deepBlue transition-colors"
+                  >
+                    <Download size={18} />
+                    Download Brochure
+                  </motion.button>
+                ) : (
+                  <motion.div
+                    key="download-split"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex gap-2"
+                  >
+                    <motion.a
+                      href="/brochure-hotels-en.pdf"
+                      download
+                      initial={{ x: 50, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-gold text-gold px-6 py-4 font-bold uppercase tracking-widest text-sm hover:bg-gold hover:text-deepBlue transition-colors"
+                    >
+                      <Download size={18} />
+                      EN
+                    </motion.a>
+                    <motion.a
+                      href="/brochure-hotels-fr.pdf"
+                      download
+                      initial={{ x: -50, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-gold text-gold px-6 py-4 font-bold uppercase tracking-widest text-sm hover:bg-gold hover:text-deepBlue transition-colors"
+                    >
+                      <Download size={18} />
+                      FR
+                    </motion.a>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </section>
@@ -530,25 +673,90 @@ export default function ForHotels() {
                         placeholder="Describe your company, clientele, and how you envision our partnership..."
                       />
                     </div>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-gold text-deepBlue font-bold uppercase tracking-widest py-4 hover:bg-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="animate-spin" size={18} />
-                          Submitting...
-                        </>
-                      ) : (
-                        "Submit Application"
-                      )}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-gold text-deepBlue px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-white hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="animate-spin" size={18} />
+                            Submitting...
+                          </>
+                        ) : (
+                          "Submit Application"
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppSubmit}
+                        disabled={isSubmitting}
+                        className="w-14 h-14 flex-shrink-0 bg-transparent border-2 border-[#25D366] text-[#25D366] rounded-full hover:bg-[#25D366] hover:text-white hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        title="Send via WhatsApp"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="animate-spin" size={20} />
+                        ) : (
+                          <MessageCircle size={24} />
+                        )}
+                      </button>
+                    </div>
                   </form>
                 </>
               )}
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Sticky Download Button with Language Options */}
+      <AnimatePresence>
+        {showStickyButton && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="fixed bottom-8 right-8 z-40"
+          >
+            {/* Language Options Menu */}
+            <AnimatePresence>
+              {showLanguageMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute bottom-full right-0 mb-2 bg-midnight border border-gold/30 rounded-lg shadow-2xl overflow-hidden"
+                >
+                  <a
+                    href="/brochure-hotels-en.pdf"
+                    download
+                    className="block px-6 py-3 text-white hover:bg-gold hover:text-deepBlue transition-colors text-sm font-bold uppercase tracking-wider"
+                  >
+                    English
+                  </a>
+                  <a
+                    href="/brochure-hotels-fr.pdf"
+                    download
+                    className="block px-6 py-3 text-white hover:bg-gold hover:text-deepBlue transition-colors text-sm font-bold uppercase tracking-wider border-t border-gold/20"
+                  >
+                    Français
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Main Button */}
+            <motion.button
+              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="bg-gold text-deepBlue p-4 rounded-full shadow-2xl hover:bg-white transition-colors group"
+              title="Download Brochure"
+            >
+              <Download size={24} className="group-hover:animate-bounce" />
+            </motion.button>
+          </motion.div>
         )}
       </AnimatePresence>
 
